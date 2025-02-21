@@ -27,11 +27,14 @@ public class Game1 : Game
     private Dictionary<Guid, PositionComponent> _positionComponents = new();
     private Dictionary<Guid, MotionComponent> _motionComponents = new();
     private Dictionary<Guid, CollisionComponent> _collisionComponents = new();
+    private Dictionary<Guid, DealDamageComponent> _dealDamageComponents = new();
+    private Dictionary<Guid, TakeDamageComponent> _takeDamageComponents = new();
     
     // Systems
     private readonly RenderSystem _renderSystem = new();
     private readonly MotionSystem _motionSystem = new();
-    private readonly CollisionSystem _collisionSystem = new();
+    private readonly DamageSystem _damageSystem = new();
+    private readonly DeathSystem _deathSystem = new();
     
     public Game1()
     {
@@ -57,13 +60,16 @@ public class Game1 : Game
         _renderComponents.Add(_shipEntity.Id, new RenderComponent(shipTexture));
         _positionComponents.Add(_shipEntity.Id, new PositionComponent(new Vector2((ScreenWidth / 2) - (shipTexture.Width / 2), (ScreenHeight / 2) - (shipTexture.Height / 2))));
         _collisionComponents.Add(_shipEntity.Id, new CollisionComponent(shipTexture.Height, shipTexture.Width));
+        _takeDamageComponents.Add(_shipEntity.Id, new TakeDamageComponent(100));
         
         // Bullet
         var bulletTexture = this.Content.Load<Texture2D>("bullet");
         _renderComponents.Add(_bulletEntity.Id, new RenderComponent(bulletTexture));
-        _positionComponents.Add(_bulletEntity.Id, new PositionComponent(new Vector2((ScreenWidth / 2) - (bulletTexture.Width / 2), (ScreenHeight / 2) - (bulletTexture.Height / 2))));
+        _positionComponents.Add(_bulletEntity.Id, new PositionComponent(new Vector2((ScreenWidth / 2) - (bulletTexture.Width / 2), (ScreenHeight / 2) - (bulletTexture.Height / 2) - shipTexture.Height)));
         _motionComponents.Add(_bulletEntity.Id, new MotionComponent(new Vector2(0f, -20f)));
         _collisionComponents.Add(_bulletEntity.Id, new CollisionComponent(bulletTexture.Height, bulletTexture.Width));
+        _dealDamageComponents.Add(_bulletEntity.Id, new DealDamageComponent(10));
+        _takeDamageComponents.Add(_bulletEntity.Id, new TakeDamageComponent(1));
 
         // Asteroid
         var asteroidTexture = this.Content.Load<Texture2D>("asteroid");
@@ -71,6 +77,8 @@ public class Game1 : Game
         _positionComponents.Add(_asteroid.Id, new PositionComponent(new Vector2((ScreenWidth / 2) - (asteroidTexture.Width / 2), 0f)));
         _motionComponents.Add(_asteroid.Id, new MotionComponent(new Vector2(0f, 20f)));
         _collisionComponents.Add(_asteroid.Id, new CollisionComponent(asteroidTexture.Height, asteroidTexture.Width));
+        _dealDamageComponents.Add(_asteroid.Id, new DealDamageComponent(100));
+        _takeDamageComponents.Add(_asteroid.Id, new TakeDamageComponent(10));
     }
 
 
@@ -85,18 +93,33 @@ public class Game1 : Game
             _motionSystem.Update(gameTime, component, _positionComponents[entityId]);
         }
 
-        foreach (var (entityId1, component1) in _collisionComponents)
+        foreach (var (entityId1, dealDamage) in _dealDamageComponents)
         {
-            foreach (var (entityId2, component2) in _collisionComponents)
+            foreach (var (entityId2, takeDamage) in _takeDamageComponents)
             {
-                if (entityId1 != entityId2) // Do not collide with self
+                if (entityId1 != entityId2) // Do not damage self
                 {
-                    _collisionSystem.Update(component1, _positionComponents[entityId1], component2, _positionComponents[entityId2]);
+                    _damageSystem.Update(_collisionComponents[entityId1],
+                                        _positionComponents[entityId1],
+                                        dealDamage,
+                                        _collisionComponents[entityId2],
+                                        _positionComponents[entityId2],
+                                        takeDamage);
                 }
             }
         }
+        PostUpdate();
 
         base.Update(gameTime);
+    }
+
+    private void PostUpdate()
+    {
+        foreach (var (entityId, component) in _takeDamageComponents)
+        {
+            _deathSystem.Update(component);
+        }
+
     }
 
     protected override void Draw(GameTime gameTime)
