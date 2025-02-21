@@ -14,12 +14,13 @@ public class Game1 : Game
     // Core
     private GraphicsDeviceManager _graphics;
     private SpriteBatch _spriteBatch;
-    public int ScreenWidth;
-    public int ScreenHeight;
+    public static int ScreenWidth;
+    public static int ScreenHeight;
 
     // Entities
     private readonly Entity _shipEntity = new("ship");
     private BulletFactory _bulletFactory;
+    private AsteroidFactory _asteroidFactory;
     private readonly Entity _asteroid = new("asteroid");
     private readonly Entity _gameOver = new("game_over");
     
@@ -46,6 +47,7 @@ public class Game1 : Game
     private readonly GameOverSystem _gameOverSystem = new();
     private readonly ShipUserControlSystem _shipUserControlSystem = new();
     private readonly FireBulletSystem _fireBulletSystem = new(0.5f);
+    private readonly AsteroidSpawnSystem _asteroidSpawnSystem = new(1);
     
     public Game1()
     {
@@ -81,13 +83,7 @@ public class Game1 : Game
       
         // Asteroid
         var asteroidTexture = this.Content.Load<Texture2D>("asteroid");
-        _renderComponents.Add(_asteroid.Id, new RenderComponent(asteroidTexture));
-        _positionComponents.Add(_asteroid.Id, new PositionComponent(new Vector2((ScreenWidth / 2) - (asteroidTexture.Width / 2), 0f)));
-        _rotationComponents.Add(_asteroid.Id, new RotationComponent());
-        _motionComponents.Add(_asteroid.Id, new LinearMotionComponent(new Vector2(0f, 40f)));
-        _collisionComponents.Add(_asteroid.Id, new CollisionComponent(asteroidTexture.Height, asteroidTexture.Width));
-        _dealDamageComponents.Add(_asteroid.Id, new DealDamageComponent(100));
-        _takeDamageComponents.Add(_asteroid.Id, new TakeDamageComponent(20));
+        _asteroidFactory = new AsteroidFactory(asteroidTexture);
         
         // Game Over
         var spriteFont = Content.Load<SpriteFont>("HudFont");
@@ -104,15 +100,26 @@ public class Game1 : Game
 
         _shipUserControlSystem.Update(_angularMotionComponents[_shipEntity.Id]);
         _fireBulletSystem.Update(gameTime, 
-                        _bulletFactory,
-                        _shipEntity.Id,
-                        _renderComponents,
-                        _positionComponents, 
-                        _rotationComponents, 
-                        _motionComponents, 
-                        _collisionComponents, 
-                        _dealDamageComponents,
-                        _takeDamageComponents);
+                                _bulletFactory,
+                                _shipEntity.Id,
+                                _renderComponents,
+                                _positionComponents,
+                                _rotationComponents,
+                                _motionComponents,
+                                _collisionComponents,
+                                _dealDamageComponents,
+                                _takeDamageComponents);
+        _asteroidSpawnSystem.Update(gameTime,
+                                    _asteroidFactory,
+                                    _shipEntity.Id,
+                                    _renderComponents,
+                                    _positionComponents,
+                                    _rotationComponents,
+                                    _motionComponents,
+                                    _collisionComponents,
+                                    _dealDamageComponents,
+                                    _takeDamageComponents);
+
         _linearMotionSystem.Update(gameTime, _motionComponents, _positionComponents);
         _angularMotionSystem.Update(gameTime, _angularMotionComponents, _rotationComponents);
 
