@@ -31,6 +31,7 @@ public class Game1 : Game
     // Systems
     private readonly RenderSystem _renderSystem = new();
     private readonly MotionSystem _motionSystem = new();
+    private readonly CollisionSystem _collisionSystem = new();
     
     public Game1()
     {
@@ -55,18 +56,21 @@ public class Game1 : Game
         var shipTexture = this.Content.Load<Texture2D>("ship");
         _renderComponents.Add(_shipEntity.Id, new RenderComponent(shipTexture));
         _positionComponents.Add(_shipEntity.Id, new PositionComponent(new Vector2((ScreenWidth / 2) - (shipTexture.Width / 2), (ScreenHeight / 2) - (shipTexture.Height / 2))));
-
+        _collisionComponents.Add(_shipEntity.Id, new CollisionComponent(shipTexture.Height, shipTexture.Width));
+        
         // Bullet
         var bulletTexture = this.Content.Load<Texture2D>("bullet");
         _renderComponents.Add(_bulletEntity.Id, new RenderComponent(bulletTexture));
         _positionComponents.Add(_bulletEntity.Id, new PositionComponent(new Vector2((ScreenWidth / 2) - (bulletTexture.Width / 2), (ScreenHeight / 2) - (bulletTexture.Height / 2))));
         _motionComponents.Add(_bulletEntity.Id, new MotionComponent(new Vector2(0f, -20f)));
+        _collisionComponents.Add(_bulletEntity.Id, new CollisionComponent(bulletTexture.Height, bulletTexture.Width));
 
         // Asteroid
         var asteroidTexture = this.Content.Load<Texture2D>("asteroid");
         _renderComponents.Add(_asteroid.Id, new RenderComponent(asteroidTexture));
         _positionComponents.Add(_asteroid.Id, new PositionComponent(new Vector2((ScreenWidth / 2) - (asteroidTexture.Width / 2), 0f)));
         _motionComponents.Add(_asteroid.Id, new MotionComponent(new Vector2(0f, 20f)));
+        _collisionComponents.Add(_asteroid.Id, new CollisionComponent(asteroidTexture.Height, asteroidTexture.Width));
     }
 
 
@@ -79,6 +83,17 @@ public class Game1 : Game
         foreach (var (entityId, component) in _motionComponents)
         {
             _motionSystem.Update(gameTime, component, _positionComponents[entityId]);
+        }
+
+        foreach (var (entityId1, component1) in _collisionComponents)
+        {
+            foreach (var (entityId2, component2) in _collisionComponents)
+            {
+                if (entityId1 != entityId2) // Do not collide with self
+                {
+                    _collisionSystem.Update(component1, _positionComponents[entityId1], component2, _positionComponents[entityId2]);
+                }
+            }
         }
 
         base.Update(gameTime);
