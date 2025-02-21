@@ -46,7 +46,7 @@ public class Game1 : Game
     private readonly DeathSystem _deathSystem = new();
     private readonly GameOverSystem _gameOverSystem = new();
     private readonly ShipUserControlSystem _shipUserControlSystem = new();
-    private readonly FireBulletSystem _fireBulletSystem = new(0.5f);
+    private readonly FireBulletSystem _fireBulletSystem = new(0.25f);
     private readonly AsteroidSpawnSystem _asteroidSpawnSystem = new(1);
     
     public Game1()
@@ -73,7 +73,7 @@ public class Game1 : Game
         _renderComponents.Add(_shipEntity.Id, new RenderComponent(shipTexture));
         _positionComponents.Add(_shipEntity.Id, new PositionComponent(new Vector2((ScreenWidth / 2) - (shipTexture.Width / 2), (ScreenHeight / 2) - (shipTexture.Height / 2))));
         _rotationComponents.Add(_shipEntity.Id, new RotationComponent());
-        _angularMotionComponents.Add(_shipEntity.Id, new AngularMotionComponent(MathHelper.ToRadians(45f)));
+        _angularMotionComponents.Add(_shipEntity.Id, new AngularMotionComponent(MathHelper.ToRadians(135)));
         _collisionComponents.Add(_shipEntity.Id, new CollisionComponent(shipTexture.Height, shipTexture.Width));
         _takeDamageComponents.Add(_shipEntity.Id, new TakeDamageComponent(100));
         
