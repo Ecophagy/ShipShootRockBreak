@@ -21,6 +21,7 @@ public class Game1 : Game
     private readonly Entity _shipEntity = new("ship");
     private readonly Entity _bulletEntity = new("bullet");
     private readonly Entity _asteroid = new("asteroid");
+    private readonly Entity _gameOver = new("game_over");
     
     // Components
     private Dictionary<Guid, RenderComponent> _renderComponents = new();
@@ -29,13 +30,17 @@ public class Game1 : Game
     private Dictionary<Guid, CollisionComponent> _collisionComponents = new();
     private Dictionary<Guid, DealDamageComponent> _dealDamageComponents = new();
     private Dictionary<Guid, TakeDamageComponent> _takeDamageComponents = new();
+    private Dictionary<Guid, TextRenderComponent> _textComponents = new();
     private Dictionary<Guid, DeadComponent> _deadComponents = new();
+    private Dictionary<Guid, VisibleComponent> _visibleComponents = new();
     
     // Systems
     private readonly RenderSystem _renderSystem = new();
+    private readonly TextRenderSystem _textRenderSystem = new();
     private readonly MotionSystem _motionSystem = new();
     private readonly DamageSystem _damageSystem = new();
     private readonly DeathSystem _deathSystem = new();
+    private readonly GameOverSystem _gameOverSystem = new();
     
     public Game1()
     {
@@ -67,7 +72,7 @@ public class Game1 : Game
         var bulletTexture = this.Content.Load<Texture2D>("bullet");
         _renderComponents.Add(_bulletEntity.Id, new RenderComponent(bulletTexture));
         _positionComponents.Add(_bulletEntity.Id, new PositionComponent(new Vector2((ScreenWidth / 2) - (bulletTexture.Width / 2), (ScreenHeight / 2) - (bulletTexture.Height / 2) - shipTexture.Height)));
-        _motionComponents.Add(_bulletEntity.Id, new MotionComponent(new Vector2(0f, -20f)));
+        _motionComponents.Add(_bulletEntity.Id, new MotionComponent(new Vector2(0f, -40f)));
         _collisionComponents.Add(_bulletEntity.Id, new CollisionComponent(bulletTexture.Height, bulletTexture.Width));
         _dealDamageComponents.Add(_bulletEntity.Id, new DealDamageComponent(10));
         _takeDamageComponents.Add(_bulletEntity.Id, new TakeDamageComponent(1));
@@ -76,10 +81,16 @@ public class Game1 : Game
         var asteroidTexture = this.Content.Load<Texture2D>("asteroid");
         _renderComponents.Add(_asteroid.Id, new RenderComponent(asteroidTexture));
         _positionComponents.Add(_asteroid.Id, new PositionComponent(new Vector2((ScreenWidth / 2) - (asteroidTexture.Width / 2), 0f)));
-        _motionComponents.Add(_asteroid.Id, new MotionComponent(new Vector2(0f, 20f)));
+        _motionComponents.Add(_asteroid.Id, new MotionComponent(new Vector2(0f, 40f)));
         _collisionComponents.Add(_asteroid.Id, new CollisionComponent(asteroidTexture.Height, asteroidTexture.Width));
         _dealDamageComponents.Add(_asteroid.Id, new DealDamageComponent(100));
-        _takeDamageComponents.Add(_asteroid.Id, new TakeDamageComponent(10));
+        _takeDamageComponents.Add(_asteroid.Id, new TakeDamageComponent(20));
+        
+        // Game Over
+        var spriteFont = Content.Load<SpriteFont>("HudFont");
+        _textComponents.Add(_gameOver.Id, new TextRenderComponent(spriteFont, "Game Over!"));
+        _positionComponents.Add(_gameOver.Id, new PositionComponent(new Vector2(ScreenWidth/2, ScreenHeight/2) - _textComponents[_gameOver.Id].Size / 2)); 
+        _visibleComponents.Add(_gameOver.Id, new VisibleComponent(false));
     }
 
 
@@ -96,7 +107,9 @@ public class Game1 : Game
                             _dealDamageComponents,
                             _takeDamageComponents,
                             _deadComponents);
-
+        
+        _gameOverSystem.Update(_shipEntity, _gameOver, _deadComponents, _visibleComponents);
+        
         PostUpdate();
 
         base.Update(gameTime);
@@ -130,6 +143,11 @@ public class Game1 : Game
             _renderSystem.Draw(_spriteBatch, component, _positionComponents[entityId]);
         }
         
+        foreach (var (entityId, component) in _textComponents)
+        {
+            _textRenderSystem.Draw(_spriteBatch, component, _positionComponents[entityId], _visibleComponents[entityId]);
+        }
+
         _spriteBatch.End();
 
         base.Draw(gameTime);
