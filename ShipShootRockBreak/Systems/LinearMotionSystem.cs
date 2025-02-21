@@ -5,9 +5,9 @@ using ShipShootRockBreak.Components;
 
 namespace ShipShootRockBreak.Systems;
 
-public class MotionSystem
+public class LinearMotionSystem
 {
-    public void Update(GameTime gameTime, Dictionary<Guid, MotionComponent> motionComponents, Dictionary<Guid, PositionComponent> positionComponents)
+    public void Update(GameTime gameTime, Dictionary<Guid, LinearMotionComponent> motionComponents, Dictionary<Guid, PositionComponent> positionComponents)
     {
         foreach ( var (entityId, motionComponent) in motionComponents)
         {

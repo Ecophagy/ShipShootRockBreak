@@ -9,7 +9,7 @@ public class DeathSystem
     public void Update(Guid entityId,
         Dictionary<Guid, RenderComponent> renderComponents,
         Dictionary<Guid, PositionComponent> positionComponents,
-        Dictionary<Guid, MotionComponent> motionComponents,
+        Dictionary<Guid, LinearMotionComponent> motionComponents,
         Dictionary<Guid, CollisionComponent> collisionComponents,
         Dictionary<Guid, DealDamageComponent> dealDamageComponents,
         Dictionary<Guid, TakeDamageComponent> takeDamageComponents,

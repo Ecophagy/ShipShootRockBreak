@@ -26,18 +26,21 @@ public class Game1 : Game
     // Components
     private Dictionary<Guid, RenderComponent> _renderComponents = new();
     private Dictionary<Guid, PositionComponent> _positionComponents = new();
-    private Dictionary<Guid, MotionComponent> _motionComponents = new();
+    private Dictionary<Guid, LinearMotionComponent> _motionComponents = new();
     private Dictionary<Guid, CollisionComponent> _collisionComponents = new();
     private Dictionary<Guid, DealDamageComponent> _dealDamageComponents = new();
     private Dictionary<Guid, TakeDamageComponent> _takeDamageComponents = new();
     private Dictionary<Guid, TextRenderComponent> _textComponents = new();
     private Dictionary<Guid, DeadComponent> _deadComponents = new();
     private Dictionary<Guid, VisibleComponent> _visibleComponents = new();
+    private Dictionary<Guid, AngularMotionComponent> _angularMotionComponents = new();
+    private Dictionary<Guid, RotationComponent> _rotationComponents = new();
     
     // Systems
     private readonly RenderSystem _renderSystem = new();
     private readonly TextRenderSystem _textRenderSystem = new();
-    private readonly MotionSystem _motionSystem = new();
+    private readonly LinearMotionSystem _linearMotionSystem = new();
+    private readonly AngularMotionSystem _angularMotionSystem = new();
     private readonly DamageSystem _damageSystem = new();
     private readonly DeathSystem _deathSystem = new();
     private readonly GameOverSystem _gameOverSystem = new();
@@ -65,6 +68,8 @@ public class Game1 : Game
         var shipTexture = this.Content.Load<Texture2D>("ship");
         _renderComponents.Add(_shipEntity.Id, new RenderComponent(shipTexture));
         _positionComponents.Add(_shipEntity.Id, new PositionComponent(new Vector2((ScreenWidth / 2) - (shipTexture.Width / 2), (ScreenHeight / 2) - (shipTexture.Height / 2))));
+        _rotationComponents.Add(_shipEntity.Id, new RotationComponent());
+        _angularMotionComponents.Add(_shipEntity.Id, new AngularMotionComponent(MathHelper.ToRadians(45f)));
         _collisionComponents.Add(_shipEntity.Id, new CollisionComponent(shipTexture.Height, shipTexture.Width));
         _takeDamageComponents.Add(_shipEntity.Id, new TakeDamageComponent(100));
         
@@ -72,7 +77,8 @@ public class Game1 : Game
         var bulletTexture = this.Content.Load<Texture2D>("bullet");
         _renderComponents.Add(_bulletEntity.Id, new RenderComponent(bulletTexture));
         _positionComponents.Add(_bulletEntity.Id, new PositionComponent(new Vector2((ScreenWidth / 2) - (bulletTexture.Width / 2), (ScreenHeight / 2) - (bulletTexture.Height / 2) - shipTexture.Height)));
-        _motionComponents.Add(_bulletEntity.Id, new MotionComponent(new Vector2(0f, -40f)));
+        _rotationComponents.Add(_bulletEntity.Id, new RotationComponent());
+        _motionComponents.Add(_bulletEntity.Id, new LinearMotionComponent(new Vector2(0f, -40f)));
         _collisionComponents.Add(_bulletEntity.Id, new CollisionComponent(bulletTexture.Height, bulletTexture.Width));
         _dealDamageComponents.Add(_bulletEntity.Id, new DealDamageComponent(10));
         _takeDamageComponents.Add(_bulletEntity.Id, new TakeDamageComponent(1));
@@ -81,7 +87,8 @@ public class Game1 : Game
         var asteroidTexture = this.Content.Load<Texture2D>("asteroid");
         _renderComponents.Add(_asteroid.Id, new RenderComponent(asteroidTexture));
         _positionComponents.Add(_asteroid.Id, new PositionComponent(new Vector2((ScreenWidth / 2) - (asteroidTexture.Width / 2), 0f)));
-        _motionComponents.Add(_asteroid.Id, new MotionComponent(new Vector2(0f, 40f)));
+        _rotationComponents.Add(_asteroid.Id, new RotationComponent());
+        _motionComponents.Add(_asteroid.Id, new LinearMotionComponent(new Vector2(0f, 40f)));
         _collisionComponents.Add(_asteroid.Id, new CollisionComponent(asteroidTexture.Height, asteroidTexture.Width));
         _dealDamageComponents.Add(_asteroid.Id, new DealDamageComponent(100));
         _takeDamageComponents.Add(_asteroid.Id, new TakeDamageComponent(20));
@@ -100,7 +107,8 @@ public class Game1 : Game
             Keyboard.GetState().IsKeyDown(Keys.Escape))
             Exit();
 
-        _motionSystem.Update(gameTime, _motionComponents, _positionComponents);
+        _linearMotionSystem.Update(gameTime, _motionComponents, _positionComponents);
+        _angularMotionSystem.Update(gameTime, _angularMotionComponents, _rotationComponents);
 
         _damageSystem.Update(_collisionComponents,
                             _positionComponents,
@@ -140,7 +148,7 @@ public class Game1 : Game
         // TODO: Update these to take dictionaries of components?
         foreach (var (entityId, component) in _renderComponents)
         {
-            _renderSystem.Draw(_spriteBatch, component, _positionComponents[entityId]);
+            _renderSystem.Draw(_spriteBatch, component, _positionComponents[entityId], _rotationComponents[entityId]);
         }
         
         foreach (var (entityId, component) in _textComponents)
