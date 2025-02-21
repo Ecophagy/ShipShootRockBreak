@@ -11,7 +11,7 @@ public class GameOverSystem
     {
         if (deadComponents.ContainsKey(ship.Id) && !visibleComponents.ContainsKey(gameOver.Id))
         {
-            visibleComponents[gameOver.Id].Visible = true;
+            visibleComponents.Add(gameOver.Id, new VisibleComponent());
         }
     }
 }

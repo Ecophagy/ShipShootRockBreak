@@ -84,16 +84,15 @@ public class Game1 : Game
         _renderComponents.Add(_asteroid.Id, new RenderComponent(asteroidTexture));
         _positionComponents.Add(_asteroid.Id, new PositionComponent(new Vector2((ScreenWidth / 2) - (asteroidTexture.Width / 2), 0f)));
         _rotationComponents.Add(_asteroid.Id, new RotationComponent());
-        _motionComponents.Add(_asteroid.Id, new LinearMotionComponent(new Vector2(0f, 0f)));
+        _motionComponents.Add(_asteroid.Id, new LinearMotionComponent(new Vector2(0f, 40f)));
         _collisionComponents.Add(_asteroid.Id, new CollisionComponent(asteroidTexture.Height, asteroidTexture.Width));
         _dealDamageComponents.Add(_asteroid.Id, new DealDamageComponent(100));
-        _takeDamageComponents.Add(_asteroid.Id, new TakeDamageComponent(10));
+        _takeDamageComponents.Add(_asteroid.Id, new TakeDamageComponent(20));
         
         // Game Over
         var spriteFont = Content.Load<SpriteFont>("HudFont");
         _textComponents.Add(_gameOver.Id, new TextRenderComponent(spriteFont, "Game Over!"));
         _positionComponents.Add(_gameOver.Id, new PositionComponent(new Vector2(ScreenWidth/2, ScreenHeight/2) - _textComponents[_gameOver.Id].Size / 2)); 
-        _visibleComponents.Add(_gameOver.Id, new VisibleComponent(false));
     }
 
 
@@ -160,7 +159,10 @@ public class Game1 : Game
         
         foreach (var (entityId, component) in _textComponents)
         {
-            _textRenderSystem.Draw(_spriteBatch, component, _positionComponents[entityId], _visibleComponents[entityId]);
+            if (_visibleComponents.ContainsKey(entityId))
+            {
+                _textRenderSystem.Draw(_spriteBatch, component, _positionComponents[entityId]);
+            }
         }
 
         _spriteBatch.End();

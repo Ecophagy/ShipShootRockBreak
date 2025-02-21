@@ -1,6 +1,6 @@
 namespace ShipShootRockBreak.Components;
 
-public class VisibleComponent(bool visible)
+public class VisibleComponent()
 {
-    public bool Visible { get; set; } = visible;
+
 }

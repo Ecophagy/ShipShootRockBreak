@@ -6,14 +6,11 @@ namespace ShipShootRockBreak.Systems;
 
 public class TextRenderSystem
 {
-    public void Draw(SpriteBatch spriteBatch, TextRenderComponent renderText, PositionComponent positionComponent, VisibleComponent visibleComponent)
+    public void Draw(SpriteBatch spriteBatch, TextRenderComponent renderText, PositionComponent positionComponent)
     {
-        if (visibleComponent.Visible)
-        {
-            spriteBatch.DrawString(renderText.Font,
-                $"{renderText.BaseText} {renderText.Text}",
-                positionComponent.Position,
-                Color.White);
-        }
+        spriteBatch.DrawString(renderText.Font,
+            $"{renderText.BaseText} {renderText.Text}",
+            positionComponent.Position,
+            Color.White);
     }
 }
