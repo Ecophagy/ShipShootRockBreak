@@ -66,7 +66,7 @@ public class Game1 : Game
         _spriteBatch = new SpriteBatch(GraphicsDevice);
 
         // Ship
-        var shipTexture = this.Content.Load<Texture2D>("ship");
+        var shipTexture = this.Content.Load<Texture2D>("rocket");
         _renderComponents.Add(_shipEntity.Id, new RenderComponent(shipTexture));
         _positionComponents.Add(_shipEntity.Id, new PositionComponent(new Vector2((ScreenWidth / 2) - (shipTexture.Width / 2), (ScreenHeight / 2) - (shipTexture.Height / 2))));
         _rotationComponents.Add(_shipEntity.Id, new RotationComponent());
@@ -143,7 +143,7 @@ public class Game1 : Game
 
     protected override void Draw(GameTime gameTime)
     {
-        GraphicsDevice.Clear(Color.White);
+        GraphicsDevice.Clear(Color.Black);
 
         _spriteBatch.Begin();
 

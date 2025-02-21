@@ -13,7 +13,7 @@ public class TextRenderSystem
             spriteBatch.DrawString(renderText.Font,
                 $"{renderText.BaseText} {renderText.Text}",
                 positionComponent.Position,
-                Color.Black);
+                Color.White);
         }
     }
 }
