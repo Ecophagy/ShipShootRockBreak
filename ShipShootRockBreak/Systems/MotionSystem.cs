@@ -5,8 +5,8 @@ namespace ShipShootRockBreak.Systems;
 
 public class MotionSystem
 {
-    public void Update(MotionComponent motion, PositionComponent position)
+    public void Update(GameTime gameTime, MotionComponent motion, PositionComponent position)
     {
-        position.Position += motion.Velocity;
+        position.Position += motion.Velocity * (float)gameTime.ElapsedGameTime.TotalSeconds;
     }
 }

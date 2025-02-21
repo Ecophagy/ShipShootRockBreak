@@ -60,13 +60,13 @@ public class Game1 : Game
         var bulletTexture = this.Content.Load<Texture2D>("bullet");
         _renderComponents.Add(_bulletEntity.Id, new RenderComponent(bulletTexture));
         _positionComponents.Add(_bulletEntity.Id, new PositionComponent(new Vector2((ScreenWidth / 2) - (bulletTexture.Width / 2), (ScreenHeight / 2) - (bulletTexture.Height / 2))));
-        _motionComponents.Add(_bulletEntity.Id, new MotionComponent(new Vector2(0f, -1f)));
+        _motionComponents.Add(_bulletEntity.Id, new MotionComponent(new Vector2(0f, -20f)));
 
         // Asteroid
         var asteroidTexture = this.Content.Load<Texture2D>("asteroid");
         _renderComponents.Add(_asteroid.Id, new RenderComponent(asteroidTexture));
         _positionComponents.Add(_asteroid.Id, new PositionComponent(new Vector2((ScreenWidth / 2) - (asteroidTexture.Width / 2), 0f)));
-        _motionComponents.Add(_asteroid.Id, new MotionComponent(new Vector2(0f, 1f)));
+        _motionComponents.Add(_asteroid.Id, new MotionComponent(new Vector2(0f, 20f)));
     }
 
 
@@ -78,7 +78,7 @@ public class Game1 : Game
 
         foreach (var (entityId, component) in _motionComponents)
         {
-            _motionSystem.Update(component, _positionComponents[entityId]);
+            _motionSystem.Update(gameTime, component, _positionComponents[entityId]);
         }
 
         base.Update(gameTime);
