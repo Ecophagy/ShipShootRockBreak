@@ -19,7 +19,7 @@ public class Game1 : Game
 
     // Entities
     private readonly Entity _shipEntity = new("ship");
-    private readonly Entity _bulletEntity = new("bullet");
+    private BulletFactory _bulletFactory;
     private readonly Entity _asteroid = new("asteroid");
     private readonly Entity _gameOver = new("game_over");
     
@@ -45,6 +45,7 @@ public class Game1 : Game
     private readonly DeathSystem _deathSystem = new();
     private readonly GameOverSystem _gameOverSystem = new();
     private readonly ShipUserControlSystem _shipUserControlSystem = new();
+    private readonly FireBulletSystem _fireBulletSystem = new(0.5f);
     
     public Game1()
     {
@@ -76,20 +77,14 @@ public class Game1 : Game
         
         // Bullet
         var bulletTexture = this.Content.Load<Texture2D>("bullet");
-        _renderComponents.Add(_bulletEntity.Id, new RenderComponent(bulletTexture));
-        _positionComponents.Add(_bulletEntity.Id, new PositionComponent(new Vector2((ScreenWidth / 2) - (bulletTexture.Width / 2), (ScreenHeight / 2) - (bulletTexture.Height / 2) - shipTexture.Height)));
-        _rotationComponents.Add(_bulletEntity.Id, new RotationComponent());
-        _motionComponents.Add(_bulletEntity.Id, new LinearMotionComponent(new Vector2(0f, -40f)));
-        _collisionComponents.Add(_bulletEntity.Id, new CollisionComponent(bulletTexture.Height, bulletTexture.Width));
-        _dealDamageComponents.Add(_bulletEntity.Id, new DealDamageComponent(10));
-        _takeDamageComponents.Add(_bulletEntity.Id, new TakeDamageComponent(1));
-
+        _bulletFactory = new BulletFactory(bulletTexture);
+      
         // Asteroid
         var asteroidTexture = this.Content.Load<Texture2D>("asteroid");
         _renderComponents.Add(_asteroid.Id, new RenderComponent(asteroidTexture));
         _positionComponents.Add(_asteroid.Id, new PositionComponent(new Vector2((ScreenWidth / 2) - (asteroidTexture.Width / 2), 0f)));
         _rotationComponents.Add(_asteroid.Id, new RotationComponent());
-        _motionComponents.Add(_asteroid.Id, new LinearMotionComponent(new Vector2(0f, 40f)));
+        _motionComponents.Add(_asteroid.Id, new LinearMotionComponent(new Vector2(0f, 0f)));
         _collisionComponents.Add(_asteroid.Id, new CollisionComponent(asteroidTexture.Height, asteroidTexture.Width));
         _dealDamageComponents.Add(_asteroid.Id, new DealDamageComponent(100));
         _takeDamageComponents.Add(_asteroid.Id, new TakeDamageComponent(10));
@@ -109,6 +104,16 @@ public class Game1 : Game
             Exit();
 
         _shipUserControlSystem.Update(_angularMotionComponents[_shipEntity.Id]);
+        _fireBulletSystem.Update(gameTime, 
+                        _bulletFactory,
+                        _shipEntity.Id,
+                        _renderComponents,
+                        _positionComponents, 
+                        _rotationComponents, 
+                        _motionComponents, 
+                        _collisionComponents, 
+                        _dealDamageComponents,
+                        _takeDamageComponents);
         _linearMotionSystem.Update(gameTime, _motionComponents, _positionComponents);
         _angularMotionSystem.Update(gameTime, _angularMotionComponents, _rotationComponents);
 

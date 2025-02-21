@@ -1,6 +1,6 @@
 namespace ShipShootRockBreak.Components;
 
-public class RotationComponent
+public class RotationComponent(float rotation = 0)
 {
-    public float Rotation { get; set; } = 0; // Radians
+    public float Rotation { get; set; } = rotation; // Radians
 }
