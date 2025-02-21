@@ -19,7 +19,6 @@ public class DamageSystem
         if (rect1.Intersects(rect2))
         {
             takeDamage2.Health -= dealDamage1.Damage;
-            Console.Out.WriteLine("Damage!");
         }
 
     }

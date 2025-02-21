@@ -115,11 +115,13 @@ public class Game1 : Game
 
     private void PostUpdate()
     {
-        foreach (var (entityId, component) in _takeDamageComponents)
-        {
-            _deathSystem.Update(component);
-        }
-
+        // FIXME: Would be preferable to not have to explicitly specify every component list here
+        _deathSystem.Update(_renderComponents,
+            _positionComponents,
+            _motionComponents,
+            _collisionComponents,
+            _dealDamageComponents,
+            _takeDamageComponents);
     }
 
     protected override void Draw(GameTime gameTime)
