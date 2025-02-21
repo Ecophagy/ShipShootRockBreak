@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using ShipShootRockBreak.Components;
 
@@ -6,20 +7,37 @@ namespace ShipShootRockBreak.Systems;
 
 public class DamageSystem
 {
-    public void Update(CollisionComponent collision1, 
-        PositionComponent position1,
-        DealDamageComponent dealDamage1,
-        CollisionComponent collision2, 
-        PositionComponent position2,
-        TakeDamageComponent takeDamage2)
+    public void Update(Dictionary<Guid, CollisionComponent> collisionComponents,
+        Dictionary<Guid, PositionComponent> positionComponents,
+        Dictionary<Guid, DealDamageComponent> dealDamageComponents,
+        Dictionary<Guid, TakeDamageComponent> takeDamageComponents,
+        Dictionary<Guid, DeadComponent> deadComponents)
     {
-        var rect1 = new Rectangle((int)position1.Position.X, (int)position1.Position.Y, collision1.Width, collision1.Height);
-        var rect2 = new Rectangle((int)position2.Position.X, (int)position2.Position.Y, collision2.Width, collision2.Height);
-        
-        if (rect1.Intersects(rect2))
+        foreach (var (entityId1, dealDamage) in dealDamageComponents)
         {
-            takeDamage2.Health -= dealDamage1.Damage;
-        }
+            foreach (var (entityId2, takeDamage) in takeDamageComponents)
+            {
+                if (entityId1 != entityId2) // Do not damage self
+                {
+                    var rect1 = new Rectangle((int)positionComponents[entityId1].Position.X,
+                        (int)positionComponents[entityId1].Position.Y,
+                        collisionComponents[entityId1].Width,
+                        collisionComponents[entityId1].Height);
+                    var rect2 = new Rectangle((int)positionComponents[entityId2].Position.X,
+                        (int)positionComponents[entityId2].Position.Y,
+                        collisionComponents[entityId2].Width,
+                        collisionComponents[entityId2].Height);
 
+                    if (rect1.Intersects(rect2))
+                    {
+                        takeDamageComponents[entityId2].Health -= dealDamageComponents[entityId1].Damage;
+                        if (takeDamageComponents[entityId2].Health <= 0)
+                        {
+                            deadComponents.Add(entityId2, new DeadComponent());
+                        }
+                    }
+                }
+            }
+        }
     }
 }

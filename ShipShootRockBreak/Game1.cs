@@ -29,6 +29,7 @@ public class Game1 : Game
     private Dictionary<Guid, CollisionComponent> _collisionComponents = new();
     private Dictionary<Guid, DealDamageComponent> _dealDamageComponents = new();
     private Dictionary<Guid, TakeDamageComponent> _takeDamageComponents = new();
+    private Dictionary<Guid, DeadComponent> _deadComponents = new();
     
     // Systems
     private readonly RenderSystem _renderSystem = new();
@@ -88,26 +89,14 @@ public class Game1 : Game
             Keyboard.GetState().IsKeyDown(Keys.Escape))
             Exit();
 
-        foreach (var (entityId, component) in _motionComponents)
-        {
-            _motionSystem.Update(gameTime, component, _positionComponents[entityId]);
-        }
+        _motionSystem.Update(gameTime, _motionComponents, _positionComponents);
 
-        foreach (var (entityId1, dealDamage) in _dealDamageComponents)
-        {
-            foreach (var (entityId2, takeDamage) in _takeDamageComponents)
-            {
-                if (entityId1 != entityId2) // Do not damage self
-                {
-                    _damageSystem.Update(_collisionComponents[entityId1],
-                                        _positionComponents[entityId1],
-                                        dealDamage,
-                                        _collisionComponents[entityId2],
-                                        _positionComponents[entityId2],
-                                        takeDamage);
-                }
-            }
-        }
+        _damageSystem.Update(_collisionComponents,
+                            _positionComponents,
+                            _dealDamageComponents,
+                            _takeDamageComponents,
+                            _deadComponents);
+
         PostUpdate();
 
         base.Update(gameTime);
@@ -116,12 +105,17 @@ public class Game1 : Game
     private void PostUpdate()
     {
         // FIXME: Would be preferable to not have to explicitly specify every component list here
-        _deathSystem.Update(_renderComponents,
-            _positionComponents,
-            _motionComponents,
-            _collisionComponents,
-            _dealDamageComponents,
-            _takeDamageComponents);
+        foreach (var (entityId, component) in _deadComponents)
+        {
+            _deathSystem.Update(entityId,
+                _renderComponents,
+                _positionComponents,
+                _motionComponents,
+                _collisionComponents,
+                _dealDamageComponents,
+                _takeDamageComponents,
+                _deadComponents);
+        }
     }
 
     protected override void Draw(GameTime gameTime)
@@ -130,6 +124,7 @@ public class Game1 : Game
 
         _spriteBatch.Begin();
 
+        // TODO: Update these to take dictionaries of components?
         foreach (var (entityId, component) in _renderComponents)
         {
             _renderSystem.Draw(_spriteBatch, component, _positionComponents[entityId]);

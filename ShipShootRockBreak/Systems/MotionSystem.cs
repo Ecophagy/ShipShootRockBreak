@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using ShipShootRockBreak.Components;
 
@@ -5,8 +7,11 @@ namespace ShipShootRockBreak.Systems;
 
 public class MotionSystem
 {
-    public void Update(GameTime gameTime, MotionComponent motion, PositionComponent position)
+    public void Update(GameTime gameTime, Dictionary<Guid, MotionComponent> motionComponents, Dictionary<Guid, PositionComponent> positionComponents)
     {
-        position.Position += motion.Velocity * (float)gameTime.ElapsedGameTime.TotalSeconds;
+        foreach ( var (entityId, motionComponent) in motionComponents)
+        {
+            positionComponents[entityId].Position += motionComponent.Velocity * (float)gameTime.ElapsedGameTime.TotalSeconds;
+        }
     }
 }
