@@ -44,6 +44,7 @@ public class Game1 : Game
     private readonly DamageSystem _damageSystem = new();
     private readonly DeathSystem _deathSystem = new();
     private readonly GameOverSystem _gameOverSystem = new();
+    private readonly ShipUserControlSystem _shipUserControlSystem = new();
     
     public Game1()
     {
@@ -91,7 +92,7 @@ public class Game1 : Game
         _motionComponents.Add(_asteroid.Id, new LinearMotionComponent(new Vector2(0f, 40f)));
         _collisionComponents.Add(_asteroid.Id, new CollisionComponent(asteroidTexture.Height, asteroidTexture.Width));
         _dealDamageComponents.Add(_asteroid.Id, new DealDamageComponent(100));
-        _takeDamageComponents.Add(_asteroid.Id, new TakeDamageComponent(20));
+        _takeDamageComponents.Add(_asteroid.Id, new TakeDamageComponent(10));
         
         // Game Over
         var spriteFont = Content.Load<SpriteFont>("HudFont");
@@ -107,6 +108,7 @@ public class Game1 : Game
             Keyboard.GetState().IsKeyDown(Keys.Escape))
             Exit();
 
+        _shipUserControlSystem.Update(_angularMotionComponents[_shipEntity.Id]);
         _linearMotionSystem.Update(gameTime, _motionComponents, _positionComponents);
         _angularMotionSystem.Update(gameTime, _angularMotionComponents, _rotationComponents);
 
