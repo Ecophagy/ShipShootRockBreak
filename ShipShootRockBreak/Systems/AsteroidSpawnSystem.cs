@@ -3,16 +3,15 @@ using System.Collections.Generic;
 using System.Windows.Forms;
 using Microsoft.Xna.Framework;
 using ShipShootRockBreak.Components;
+using ShipShootRockBreak.Constants;
 using ShipShootRockBreak.Entities;
 
 namespace ShipShootRockBreak.Systems;
 
-public class AsteroidSpawnSystem(float creationThrottle)
+public class AsteroidSpawnSystem()
 {
-    private float CreationThrottle { get; } = creationThrottle;
     private float Timer { get; set; }
-    private const int AsteroidSpeed = 25;
-    private Random _random { get; } = new Random();
+    private Random Random { get; } = new();
 
     public void Update(GameTime gameTime,
         AsteroidFactory asteroidFactory,
@@ -28,32 +27,23 @@ public class AsteroidSpawnSystem(float creationThrottle)
         Dictionary<Guid, ScoreComponent> scoreComponents)
     {
         Timer += (float)gameTime.ElapsedGameTime.TotalSeconds;
-        if (Timer >= CreationThrottle)
+        if (Timer >= GameConstants.AsteroidCreationThrottle)
         {
             var shipLocation = positionComponents[shipId];
             
-            var side = _random.Next(0, 4);
-            Vector2 asteroidPosition = new Vector2();
-            switch (side)
+            var side = Random.Next(0, 4);
+            var asteroidPosition = side switch
             {
-                case 0:
-                    asteroidPosition = new Vector2(_random.Next(0, Game1.ScreenWidth), 0);
-                    break;
-                case 1:
-                    asteroidPosition = new Vector2(Game1.ScreenWidth, _random.Next(0, Game1.ScreenHeight));
-                    break;
-                case 2:
-                    asteroidPosition =  new Vector2(_random.Next(0, Game1.ScreenWidth), Game1.ScreenHeight);
-                    break;
-                case 3:
-                    asteroidPosition = new Vector2(0, _random.Next(0, Game1.ScreenHeight));
-                    break;
-            }
+                0 => new Vector2(Random.Next(0, Game1.ScreenWidth), 0),
+                1 => new Vector2(Game1.ScreenWidth, Random.Next(0, Game1.ScreenHeight)),
+                2 => new Vector2(Random.Next(0, Game1.ScreenWidth), Game1.ScreenHeight),
+                3 => new Vector2(0, Random.Next(0, Game1.ScreenHeight)),
+                _ => new Vector2()
+            };
 
             var relativePosition = shipLocation.Position - asteroidPosition;
             var relativeAngle = Math.Atan2(relativePosition.Y, relativePosition.X);
-            var asteroidVelocity = new Vector2((float)(Math.Cos(relativeAngle) * AsteroidSpeed), (float)(Math.Sin(relativeAngle) * AsteroidSpeed));
-
+            var asteroidVelocity = new Vector2((float)(Math.Cos(relativeAngle) * GameConstants.BulletSpeed), (float)(Math.Sin(relativeAngle) * GameConstants.BulletSpeed));
             
             asteroidFactory.CreateAsteroid(renderComponents,
                 positionComponents,

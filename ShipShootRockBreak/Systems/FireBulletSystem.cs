@@ -3,17 +3,14 @@ using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using ShipShootRockBreak.Components;
+using ShipShootRockBreak.Constants;
 using ShipShootRockBreak.Entities;
 
 namespace ShipShootRockBreak.Systems;
 
-public class FireBulletSystem(float creationThrottle)
+public class FireBulletSystem()
 {
-    private float CreationThrottle { get; } = creationThrottle;
     private float Timer { get; set; }
-
-    private const int DistanceFromShip = 16;
-    private const int BulletSpeed = 50;
     
     public void Update(GameTime gameTime,
                     BulletFactory bulletFactory,
@@ -30,15 +27,15 @@ public class FireBulletSystem(float creationThrottle)
         Timer += (float)gameTime.ElapsedGameTime.TotalSeconds;
         if (Keyboard.GetState().IsKeyDown(Keys.Space))
         {
-            if (Timer >= CreationThrottle)
+            if (Timer >= GameConstants.BulletCreationThrottle)
             {
                 var shipLocation = positionComponents[shipId];
                 var shipRotation = rotationComponents[shipId];
-                var horizontalOffset = Math.Sin(shipRotation.Rotation) * DistanceFromShip;
-                var verticalOffset = Math.Cos(shipRotation.Rotation) * DistanceFromShip;
+                var horizontalOffset = Math.Sin(shipRotation.Rotation) * GameConstants.SpawnDistanceFromShip;
+                var verticalOffset = Math.Cos(shipRotation.Rotation) * GameConstants.SpawnDistanceFromShip;
                 
                 var bulletPosition = shipLocation.Position + new Vector2((float)horizontalOffset, -(float)verticalOffset); ;
-                var bulletVelocity = new Vector2((float)(Math.Sin(shipRotation.Rotation) * BulletSpeed), -(float)(Math.Cos(shipRotation.Rotation) * BulletSpeed));
+                var bulletVelocity = new Vector2((float)(Math.Sin(shipRotation.Rotation) * GameConstants.BulletSpeed), -(float)(Math.Cos(shipRotation.Rotation) * GameConstants.BulletSpeed));
                 
                 bulletFactory.CreateBullet(renderComponents,
                     positionComponents,

@@ -50,8 +50,8 @@ public class Game1 : Game
     private readonly DeathSystem _deathSystem = new();
     private readonly GameOverSystem _gameOverSystem = new();
     private readonly ShipUserControlSystem _shipUserControlSystem = new();
-    private readonly FireBulletSystem _fireBulletSystem = new(0.25f);
-    private readonly AsteroidSpawnSystem _asteroidSpawnSystem = new(1);
+    private readonly FireBulletSystem _fireBulletSystem = new();
+    private readonly AsteroidSpawnSystem _asteroidSpawnSystem = new();
     private readonly ScoreSystem _scoreSystem = new();
     private readonly ScoreboardUpdateSystem _scoreboardUpdateSystem = new();
     
@@ -79,9 +79,9 @@ public class Game1 : Game
         _renderComponents.Add(_shipEntity.Id, new RenderComponent(shipTexture));
         _positionComponents.Add(_shipEntity.Id, new PositionComponent(new Vector2((ScreenWidth / 2) - (shipTexture.Width / 2), (ScreenHeight / 2) - (shipTexture.Height / 2))));
         _rotationComponents.Add(_shipEntity.Id, new RotationComponent());
-        _angularMotionComponents.Add(_shipEntity.Id, new AngularMotionComponent(MathHelper.ToRadians(135)));
+        _angularMotionComponents.Add(_shipEntity.Id, new AngularMotionComponent(GameConstants.ShipRotationSpeed));
         _collisionComponents.Add(_shipEntity.Id, new CollisionComponent(shipTexture.Height, shipTexture.Width));
-        _takeDamageComponents.Add(_shipEntity.Id, new TakeDamageComponent(100));
+        _takeDamageComponents.Add(_shipEntity.Id, new TakeDamageComponent(GameConstants.ShipMaxHealth));
         _allegianceComponents.Add(_shipEntity.Id, new AllegianceComponent(Allegiance.Ally));
         
         // Bullet
@@ -98,7 +98,7 @@ public class Game1 : Game
         _totalScoreComponents.Add(_scoreboard.Id, new TotalScoreComponent());
         _textComponents.Add(_scoreboard.Id, new TextRenderComponent(hudFont, "Score:"));
         _visibleComponents.Add(_scoreboard.Id, new VisibleComponent());
-        _positionComponents.Add(_scoreboard.Id, new PositionComponent(new Vector2(10, 0))); 
+        _positionComponents.Add(_scoreboard.Id, new PositionComponent(GameConstants.ScoreboardPosition)); 
         
         // Game Over
         _textComponents.Add(_gameOver.Id, new TextRenderComponent(hudFont, "Game Over!"));

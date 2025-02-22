@@ -12,6 +12,7 @@ public class AsteroidFactory(Texture2D texture)
     private readonly Texture2D _texture = texture;
     private const int Damage = 100;
     private const int Health = 20;
+    private const int Score = 100;
 
     public void CreateAsteroid(Dictionary<Guid, RenderComponent> renderComponents,
         Dictionary<Guid, PositionComponent> positionComponents,
@@ -34,6 +35,6 @@ public class AsteroidFactory(Texture2D texture)
         dealDamageComponents.Add(asteroidEntity.Id, new DealDamageComponent(Damage));
         takeDamageComponents.Add(asteroidEntity.Id, new TakeDamageComponent(Health));
         allegianceComponents.Add(asteroidEntity.Id, new AllegianceComponent(Allegiance.Enemy));
-        scoreComponents.Add(asteroidEntity.Id, new ScoreComponent(100));
+        scoreComponents.Add(asteroidEntity.Id, new ScoreComponent(Score));
     }
 }

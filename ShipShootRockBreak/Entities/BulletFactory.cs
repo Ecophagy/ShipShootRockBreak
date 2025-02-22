@@ -9,7 +9,7 @@ namespace ShipShootRockBreak.Entities;
 
 public class BulletFactory(Texture2D texture)
 {
-    private Texture2D _texture = texture;
+    private readonly Texture2D _texture = texture;
     private const int Damage = 10;
     private const int Health = 1;
 
