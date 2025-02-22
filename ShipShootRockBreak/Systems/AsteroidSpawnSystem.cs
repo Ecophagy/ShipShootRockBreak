@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Windows.Forms;
 using Microsoft.Xna.Framework;
 using ShipShootRockBreak.Components;
 using ShipShootRockBreak.Entities;
@@ -23,7 +24,8 @@ public class AsteroidSpawnSystem(float creationThrottle)
         Dictionary<Guid, CollisionComponent> collisionComponents,
         Dictionary<Guid, DealDamageComponent> dealDamageComponents,
         Dictionary<Guid, TakeDamageComponent> takeDamageComponents,
-        Dictionary<Guid, AllegianceComponent> allegianceComponents)
+        Dictionary<Guid, AllegianceComponent> allegianceComponents,
+        Dictionary<Guid, ScoreComponent> scoreComponents)
     {
         Timer += (float)gameTime.ElapsedGameTime.TotalSeconds;
         if (Timer >= CreationThrottle)
@@ -61,6 +63,7 @@ public class AsteroidSpawnSystem(float creationThrottle)
                 dealDamageComponents,
                 takeDamageComponents,
                 allegianceComponents,
+                scoreComponents,
                 asteroidPosition,
                 asteroidVelocity);
 

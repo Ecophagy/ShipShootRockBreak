@@ -21,6 +21,7 @@ public class AsteroidFactory(Texture2D texture)
         Dictionary<Guid, DealDamageComponent> dealDamageComponents,
         Dictionary<Guid, TakeDamageComponent> takeDamageComponents,
         Dictionary<Guid, AllegianceComponent> allegianceComponents,
+        Dictionary<Guid, ScoreComponent> scoreComponents,
         Vector2 position,
         Vector2 velocity)
     {
@@ -33,5 +34,6 @@ public class AsteroidFactory(Texture2D texture)
         dealDamageComponents.Add(asteroidEntity.Id, new DealDamageComponent(Damage));
         takeDamageComponents.Add(asteroidEntity.Id, new TakeDamageComponent(Health));
         allegianceComponents.Add(asteroidEntity.Id, new AllegianceComponent(Allegiance.Enemy));
+        scoreComponents.Add(asteroidEntity.Id, new ScoreComponent(100));
     }
 }

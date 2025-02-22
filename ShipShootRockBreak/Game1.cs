@@ -22,7 +22,7 @@ public class Game1 : Game
     private readonly Entity _shipEntity = new("ship");
     private BulletFactory _bulletFactory;
     private AsteroidFactory _asteroidFactory;
-    private readonly Entity _asteroid = new("asteroid");
+    private readonly Entity _scoreboard = new ("scoreboard");
     private readonly Entity _gameOver = new("game_over");
     
     // Components
@@ -38,6 +38,8 @@ public class Game1 : Game
     private Dictionary<Guid, AngularMotionComponent> _angularMotionComponents = new();
     private Dictionary<Guid, RotationComponent> _rotationComponents = new();
     private Dictionary<Guid, AllegianceComponent> _allegianceComponents = new();
+    private Dictionary<Guid, ScoreComponent> _scoreComponents = new();
+    private Dictionary<Guid, TotalScoreComponent> _totalScoreComponents = new();
     
     // Systems
     private readonly RenderSystem _renderSystem = new();
@@ -50,6 +52,8 @@ public class Game1 : Game
     private readonly ShipUserControlSystem _shipUserControlSystem = new();
     private readonly FireBulletSystem _fireBulletSystem = new(0.25f);
     private readonly AsteroidSpawnSystem _asteroidSpawnSystem = new(1);
+    private readonly ScoreSystem _scoreSystem = new();
+    private readonly ScoreboardUpdateSystem _scoreboardUpdateSystem = new();
     
     public Game1()
     {
@@ -69,7 +73,7 @@ public class Game1 : Game
     protected override void LoadContent()
     {
         _spriteBatch = new SpriteBatch(GraphicsDevice);
-
+        
         // Ship
         var shipTexture = this.Content.Load<Texture2D>("rocket");
         _renderComponents.Add(_shipEntity.Id, new RenderComponent(shipTexture));
@@ -87,10 +91,17 @@ public class Game1 : Game
         // Asteroid
         var asteroidTexture = this.Content.Load<Texture2D>("asteroid");
         _asteroidFactory = new AsteroidFactory(asteroidTexture);
+     
+        var hudFont = Content.Load<SpriteFont>("HudFont");
+        
+        // Scoreboard
+        _totalScoreComponents.Add(_scoreboard.Id, new TotalScoreComponent());
+        _textComponents.Add(_scoreboard.Id, new TextRenderComponent(hudFont, "Score:"));
+        _visibleComponents.Add(_scoreboard.Id, new VisibleComponent());
+        _positionComponents.Add(_scoreboard.Id, new PositionComponent(new Vector2(10, 0))); 
         
         // Game Over
-        var spriteFont = Content.Load<SpriteFont>("HudFont");
-        _textComponents.Add(_gameOver.Id, new TextRenderComponent(spriteFont, "Game Over!"));
+        _textComponents.Add(_gameOver.Id, new TextRenderComponent(hudFont, "Game Over!"));
         _positionComponents.Add(_gameOver.Id, new PositionComponent(new Vector2(ScreenWidth/2, ScreenHeight/2) - _textComponents[_gameOver.Id].Size / 2)); 
     }
 
@@ -123,7 +134,8 @@ public class Game1 : Game
                                     _collisionComponents,
                                     _dealDamageComponents,
                                     _takeDamageComponents,
-                                    _allegianceComponents);
+                                    _allegianceComponents,
+                                    _scoreComponents);
 
         _linearMotionSystem.Update(gameTime, _motionComponents, _positionComponents);
         _angularMotionSystem.Update(gameTime, _angularMotionComponents, _rotationComponents);
@@ -135,6 +147,8 @@ public class Game1 : Game
                             _deadComponents,
                             _allegianceComponents);
         
+        _scoreSystem.Update(_scoreComponents, _deadComponents, _totalScoreComponents);
+        _scoreboardUpdateSystem.Update(_totalScoreComponents, _textComponents);
         _gameOverSystem.Update(_shipEntity, _gameOver, _deadComponents, _visibleComponents);
         
         PostUpdate();
