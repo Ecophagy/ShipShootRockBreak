@@ -11,13 +11,16 @@ public class DamageSystem
         Dictionary<Guid, PositionComponent> positionComponents,
         Dictionary<Guid, DealDamageComponent> dealDamageComponents,
         Dictionary<Guid, TakeDamageComponent> takeDamageComponents,
-        Dictionary<Guid, DeadComponent> deadComponents)
+        Dictionary<Guid, DeadComponent> deadComponents,
+        Dictionary<Guid, AllegianceComponent> allegianceComponents)
     {
         foreach (var (entityId1, dealDamage) in dealDamageComponents)
         {
             foreach (var (entityId2, takeDamage) in takeDamageComponents)
             {
-                if (entityId1 != entityId2) // Do not damage self
+                // Do not damage self and do not damage same allegiance
+                // TODO: Better filtering to avoid this just in time check?
+                if (entityId1 != entityId2 && allegianceComponents[entityId1].Allegiance != allegianceComponents[entityId2].Allegiance) 
                 {
                     var rect1 = new Rectangle((int)positionComponents[entityId1].Position.X,
                         (int)positionComponents[entityId1].Position.Y,

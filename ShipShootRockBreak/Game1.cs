@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using ShipShootRockBreak.Components;
+using ShipShootRockBreak.Constants;
 using ShipShootRockBreak.Entities;
 using ShipShootRockBreak.Systems;
 
@@ -36,6 +37,7 @@ public class Game1 : Game
     private Dictionary<Guid, VisibleComponent> _visibleComponents = new();
     private Dictionary<Guid, AngularMotionComponent> _angularMotionComponents = new();
     private Dictionary<Guid, RotationComponent> _rotationComponents = new();
+    private Dictionary<Guid, AllegianceComponent> _allegianceComponents = new();
     
     // Systems
     private readonly RenderSystem _renderSystem = new();
@@ -76,6 +78,7 @@ public class Game1 : Game
         _angularMotionComponents.Add(_shipEntity.Id, new AngularMotionComponent(MathHelper.ToRadians(135)));
         _collisionComponents.Add(_shipEntity.Id, new CollisionComponent(shipTexture.Height, shipTexture.Width));
         _takeDamageComponents.Add(_shipEntity.Id, new TakeDamageComponent(100));
+        _allegianceComponents.Add(_shipEntity.Id, new AllegianceComponent(Allegiance.Ally));
         
         // Bullet
         var bulletTexture = this.Content.Load<Texture2D>("bullet");
@@ -108,7 +111,8 @@ public class Game1 : Game
                                 _motionComponents,
                                 _collisionComponents,
                                 _dealDamageComponents,
-                                _takeDamageComponents);
+                                _takeDamageComponents,
+                                _allegianceComponents);
         _asteroidSpawnSystem.Update(gameTime,
                                     _asteroidFactory,
                                     _shipEntity.Id,
@@ -118,7 +122,8 @@ public class Game1 : Game
                                     _motionComponents,
                                     _collisionComponents,
                                     _dealDamageComponents,
-                                    _takeDamageComponents);
+                                    _takeDamageComponents,
+                                    _allegianceComponents);
 
         _linearMotionSystem.Update(gameTime, _motionComponents, _positionComponents);
         _angularMotionSystem.Update(gameTime, _angularMotionComponents, _rotationComponents);
@@ -127,7 +132,8 @@ public class Game1 : Game
                             _positionComponents,
                             _dealDamageComponents,
                             _takeDamageComponents,
-                            _deadComponents);
+                            _deadComponents,
+                            _allegianceComponents);
         
         _gameOverSystem.Update(_shipEntity, _gameOver, _deadComponents, _visibleComponents);
         

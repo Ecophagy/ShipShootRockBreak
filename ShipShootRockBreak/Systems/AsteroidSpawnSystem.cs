@@ -22,7 +22,8 @@ public class AsteroidSpawnSystem(float creationThrottle)
         Dictionary<Guid, LinearMotionComponent> linearMotionComponents,
         Dictionary<Guid, CollisionComponent> collisionComponents,
         Dictionary<Guid, DealDamageComponent> dealDamageComponents,
-        Dictionary<Guid, TakeDamageComponent> takeDamageComponents)
+        Dictionary<Guid, TakeDamageComponent> takeDamageComponents,
+        Dictionary<Guid, AllegianceComponent> allegianceComponents)
     {
         Timer += (float)gameTime.ElapsedGameTime.TotalSeconds;
         if (Timer >= CreationThrottle)
@@ -59,6 +60,7 @@ public class AsteroidSpawnSystem(float creationThrottle)
                 collisionComponents,
                 dealDamageComponents,
                 takeDamageComponents,
+                allegianceComponents,
                 asteroidPosition,
                 asteroidVelocity);
 

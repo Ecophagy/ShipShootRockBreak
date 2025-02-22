@@ -12,7 +12,7 @@ public class FireBulletSystem(float creationThrottle)
     private float CreationThrottle { get; } = creationThrottle;
     private float Timer { get; set; }
 
-    private const int DistanceFromShip = 32; // FIXME: This can collide with the ship
+    private const int DistanceFromShip = 16;
     private const int BulletSpeed = 50;
     
     public void Update(GameTime gameTime,
@@ -24,7 +24,8 @@ public class FireBulletSystem(float creationThrottle)
                     Dictionary<Guid, LinearMotionComponent> linearMotionComponents,
                     Dictionary<Guid, CollisionComponent> collisionComponents,
                     Dictionary<Guid, DealDamageComponent> dealDamageComponents,
-                    Dictionary<Guid, TakeDamageComponent> takeDamageComponents)
+                    Dictionary<Guid, TakeDamageComponent> takeDamageComponents,
+                    Dictionary<Guid, AllegianceComponent> allegianceComponents)
     {
         Timer += (float)gameTime.ElapsedGameTime.TotalSeconds;
         if (Keyboard.GetState().IsKeyDown(Keys.Space))
@@ -46,6 +47,7 @@ public class FireBulletSystem(float creationThrottle)
                     collisionComponents,
                     dealDamageComponents,
                     takeDamageComponents,
+                    allegianceComponents,
                     bulletPosition,
                     bulletVelocity,
                     shipRotation.Rotation);

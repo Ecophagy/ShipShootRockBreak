@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using ShipShootRockBreak.Components;
+using ShipShootRockBreak.Constants;
 
 namespace ShipShootRockBreak.Entities;
 
@@ -19,6 +20,7 @@ public class AsteroidFactory(Texture2D texture)
         Dictionary<Guid, CollisionComponent> collisionComponents,
         Dictionary<Guid, DealDamageComponent> dealDamageComponents,
         Dictionary<Guid, TakeDamageComponent> takeDamageComponents,
+        Dictionary<Guid, AllegianceComponent> allegianceComponents,
         Vector2 position,
         Vector2 velocity)
     {
@@ -30,5 +32,6 @@ public class AsteroidFactory(Texture2D texture)
         collisionComponents.Add(asteroidEntity.Id, new CollisionComponent(_texture.Height, _texture.Width));
         dealDamageComponents.Add(asteroidEntity.Id, new DealDamageComponent(Damage));
         takeDamageComponents.Add(asteroidEntity.Id, new TakeDamageComponent(Health));
+        allegianceComponents.Add(asteroidEntity.Id, new AllegianceComponent(Allegiance.Enemy));
     }
 }

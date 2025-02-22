@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using ShipShootRockBreak.Components;
+using ShipShootRockBreak.Constants;
 
 namespace ShipShootRockBreak.Entities;
 
@@ -19,6 +20,7 @@ public class BulletFactory(Texture2D texture)
                             Dictionary<Guid, CollisionComponent> collisionComponents,
                             Dictionary<Guid, DealDamageComponent> dealDamageComponents,
                             Dictionary<Guid, TakeDamageComponent> takeDamageComponents,
+                            Dictionary<Guid, AllegianceComponent> allegianceComponents,
                             Vector2 position,
                             Vector2 velocity,
                             float rotation)
@@ -31,6 +33,7 @@ public class BulletFactory(Texture2D texture)
         collisionComponents.Add(bulletEntity.Id, new CollisionComponent(_texture.Height, _texture.Width));
         dealDamageComponents.Add(bulletEntity.Id, new DealDamageComponent(Damage));
         takeDamageComponents.Add(bulletEntity.Id, new TakeDamageComponent(Health));
+        allegianceComponents.Add(bulletEntity.Id, new AllegianceComponent(Allegiance.Ally));
 
     }
 }
