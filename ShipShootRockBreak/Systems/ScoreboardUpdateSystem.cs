@@ -1,16 +1,15 @@
-using System;
-using System.Collections.Generic;
+using Microsoft.Xna.Framework;
 using ShipShootRockBreak.Components;
 
 namespace ShipShootRockBreak.Systems;
 
-public class ScoreboardUpdateSystem
+public class ScoreboardUpdateSystem : ISystem
 {
-    public void Update(Dictionary<Guid, TotalScoreComponent> totalScoreComponents, Dictionary<Guid, TextRenderComponent> textRenderComponents)
+    public void Update(GameTime gameTime, ComponentManager componentManager)
     {
-        foreach (var (entityId, totalScoreComponent) in totalScoreComponents)
+        foreach (var (entityId, totalScoreComponent) in componentManager.TotalScoreComponents)
         {
-            textRenderComponents[entityId].Text = $"{totalScoreComponent.TotalScore}";
+            componentManager.TextComponents[entityId].Text = $"{totalScoreComponent.TotalScore}";
         }
     }
 }

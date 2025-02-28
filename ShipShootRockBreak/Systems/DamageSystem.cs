@@ -5,38 +5,33 @@ using ShipShootRockBreak.Components;
 
 namespace ShipShootRockBreak.Systems;
 
-public class DamageSystem
+public class DamageSystem : ISystem
 {
-    public void Update(Dictionary<Guid, CollisionComponent> collisionComponents,
-        Dictionary<Guid, PositionComponent> positionComponents,
-        Dictionary<Guid, DealDamageComponent> dealDamageComponents,
-        Dictionary<Guid, TakeDamageComponent> takeDamageComponents,
-        Dictionary<Guid, DeadComponent> deadComponents,
-        Dictionary<Guid, AllegianceComponent> allegianceComponents)
+    public void Update(GameTime gameTime, ComponentManager componentManager)
     {
-        foreach (var (entityId1, dealDamage) in dealDamageComponents)
+        foreach (var (entityId1, dealDamage) in componentManager.DealDamageComponents)
         {
-            foreach (var (entityId2, takeDamage) in takeDamageComponents)
+            foreach (var (entityId2, takeDamage) in componentManager.TakeDamageComponents)
             {
                 // Do not damage self and do not damage same allegiance
                 // TODO: Better filtering to avoid this just in time check?
-                if (entityId1 != entityId2 && allegianceComponents[entityId1].Allegiance != allegianceComponents[entityId2].Allegiance) 
+                if (entityId1 != entityId2 && componentManager.AllegianceComponents[entityId1].Allegiance != componentManager.AllegianceComponents[entityId2].Allegiance) 
                 {
-                    var rect1 = new Rectangle((int)positionComponents[entityId1].Position.X,
-                        (int)positionComponents[entityId1].Position.Y,
-                        collisionComponents[entityId1].Width,
-                        collisionComponents[entityId1].Height);
-                    var rect2 = new Rectangle((int)positionComponents[entityId2].Position.X,
-                        (int)positionComponents[entityId2].Position.Y,
-                        collisionComponents[entityId2].Width,
-                        collisionComponents[entityId2].Height);
+                    var rect1 = new Rectangle((int)componentManager.PositionComponents[entityId1].Position.X,
+                        (int)componentManager.PositionComponents[entityId1].Position.Y,
+                        componentManager.CollisionComponents[entityId1].Width,
+                        componentManager.CollisionComponents[entityId1].Height);
+                    var rect2 = new Rectangle((int)componentManager.PositionComponents[entityId2].Position.X,
+                        (int)componentManager.PositionComponents[entityId2].Position.Y,
+                        componentManager.CollisionComponents[entityId2].Width,
+                        componentManager.CollisionComponents[entityId2].Height);
 
                     if (rect1.Intersects(rect2))
                     {
-                        takeDamageComponents[entityId2].Health -= dealDamageComponents[entityId1].Damage;
-                        if (takeDamageComponents[entityId2].Health <= 0)
+                        componentManager.TakeDamageComponents[entityId2].Health -= componentManager.DealDamageComponents[entityId1].Damage;
+                        if (componentManager.TakeDamageComponents[entityId2].Health <= 0)
                         {
-                            deadComponents.Add(entityId2, new DeadComponent());
+                            componentManager.DeadComponents.Add(entityId2, new DeadComponent());
                         }
                     }
                 }

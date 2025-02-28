@@ -5,14 +5,14 @@ using ShipShootRockBreak.Components;
 
 namespace ShipShootRockBreak.Systems;
 
-public class AngularMotionSystem
+public class AngularMotionSystem : ISystem
 {
-    public void Update(GameTime gameTime, Dictionary<Guid, AngularMotionComponent> motionComponents, Dictionary<Guid, RotationComponent> rotationComponents)
+    public void Update(GameTime gameTime, ComponentManager componentManager)
     {
-        foreach ( var (entityId, motionComponent) in motionComponents)
+        foreach (var (entityId, motionComponent) in componentManager.AngularMotionComponents)
         {
-            rotationComponents[entityId].Rotation += motionComponent.AngularVelocity * (float)gameTime.ElapsedGameTime.TotalSeconds;
-            rotationComponents[entityId].Rotation %= MathHelper.TwoPi;
+            componentManager.RotationComponents[entityId].Rotation += motionComponent.AngularVelocity * (float)gameTime.ElapsedGameTime.TotalSeconds;
+            componentManager.RotationComponents[entityId].Rotation %= MathHelper.TwoPi;
         }
     }
 }

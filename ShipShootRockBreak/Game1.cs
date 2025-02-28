@@ -26,22 +26,10 @@ public class Game1 : Game
     private readonly Entity _gameOver = new("game_over");
     
     // Components
-    private Dictionary<Guid, RenderComponent> _renderComponents = new();
-    private Dictionary<Guid, PositionComponent> _positionComponents = new();
-    private Dictionary<Guid, LinearMotionComponent> _motionComponents = new();
-    private Dictionary<Guid, CollisionComponent> _collisionComponents = new();
-    private Dictionary<Guid, DealDamageComponent> _dealDamageComponents = new();
-    private Dictionary<Guid, TakeDamageComponent> _takeDamageComponents = new();
-    private Dictionary<Guid, TextRenderComponent> _textComponents = new();
-    private Dictionary<Guid, DeadComponent> _deadComponents = new();
-    private Dictionary<Guid, VisibleComponent> _visibleComponents = new();
-    private Dictionary<Guid, AngularMotionComponent> _angularMotionComponents = new();
-    private Dictionary<Guid, RotationComponent> _rotationComponents = new();
-    private Dictionary<Guid, AllegianceComponent> _allegianceComponents = new();
-    private Dictionary<Guid, ScoreComponent> _scoreComponents = new();
-    private Dictionary<Guid, TotalScoreComponent> _totalScoreComponents = new();
+    private ComponentManager _componentManager = new();
     
     // Systems
+    // TODO: Put these in an ordered list and iterate over it for updates
     private readonly RenderSystem _renderSystem = new();
     private readonly TextRenderSystem _textRenderSystem = new();
     private readonly LinearMotionSystem _linearMotionSystem = new();
@@ -76,13 +64,13 @@ public class Game1 : Game
         
         // Ship
         var shipTexture = this.Content.Load<Texture2D>("rocket");
-        _renderComponents.Add(_shipEntity.Id, new RenderComponent(shipTexture));
-        _positionComponents.Add(_shipEntity.Id, new PositionComponent(new Vector2((ScreenWidth / 2) - (shipTexture.Width / 2), (ScreenHeight / 2) - (shipTexture.Height / 2))));
-        _rotationComponents.Add(_shipEntity.Id, new RotationComponent());
-        _angularMotionComponents.Add(_shipEntity.Id, new AngularMotionComponent(GameConstants.ShipRotationSpeed));
-        _collisionComponents.Add(_shipEntity.Id, new CollisionComponent(shipTexture.Height, shipTexture.Width));
-        _takeDamageComponents.Add(_shipEntity.Id, new TakeDamageComponent(GameConstants.ShipMaxHealth));
-        _allegianceComponents.Add(_shipEntity.Id, new AllegianceComponent(Allegiance.Ally));
+        _componentManager.AddRenderComponent(_shipEntity.Id, shipTexture);
+        _componentManager.AddPositionComponent(_shipEntity.Id, new Vector2((ScreenWidth / 2) - (shipTexture.Width / 2), (ScreenHeight / 2) - (shipTexture.Height / 2)));
+        _componentManager.AddRotationComponent(_shipEntity.Id);
+        _componentManager.AddAngularMotionComponent(_shipEntity.Id, GameConstants.ShipRotationSpeed);
+        _componentManager.AddCollisionComponent(_shipEntity.Id, shipTexture.Height, shipTexture.Width);
+        _componentManager.AddTakeDamageComponent(_shipEntity.Id, GameConstants.ShipMaxHealth);
+        _componentManager.AddAllegianceComponent(_shipEntity.Id, Allegiance.Ally);
         
         // Bullet
         var bulletTexture = this.Content.Load<Texture2D>("bullet");
@@ -95,14 +83,14 @@ public class Game1 : Game
         var hudFont = Content.Load<SpriteFont>("HudFont");
         
         // Scoreboard
-        _totalScoreComponents.Add(_scoreboard.Id, new TotalScoreComponent());
-        _textComponents.Add(_scoreboard.Id, new TextRenderComponent(hudFont, "Score:"));
-        _visibleComponents.Add(_scoreboard.Id, new VisibleComponent());
-        _positionComponents.Add(_scoreboard.Id, new PositionComponent(GameConstants.ScoreboardPosition)); 
+        _componentManager.AddTotalScoreComponent(_scoreboard.Id);
+        _componentManager.AddTextRenderComponent(_scoreboard.Id, hudFont, "Score:");
+        _componentManager.AddVisibleComponent(_scoreboard.Id);
+        _componentManager.AddPositionComponent(_scoreboard.Id, GameConstants.ScoreboardPosition);
         
         // Game Over
-        _textComponents.Add(_gameOver.Id, new TextRenderComponent(hudFont, "Game Over!"));
-        _positionComponents.Add(_gameOver.Id, new PositionComponent(new Vector2(ScreenWidth/2, ScreenHeight/2) - _textComponents[_gameOver.Id].Size / 2)); 
+        _componentManager.AddTextRenderComponent(_gameOver.Id, hudFont, "Game Over!");
+        _componentManager.AddPositionComponent(_gameOver.Id, new Vector2(ScreenWidth/2, ScreenHeight/2) - _componentManager.TextComponents[_gameOver.Id].Size / 2);
     }
 
 
@@ -112,64 +100,30 @@ public class Game1 : Game
             Keyboard.GetState().IsKeyDown(Keys.Escape))
             Exit();
 
-        _shipUserControlSystem.Update(_angularMotionComponents[_shipEntity.Id]);
-        _fireBulletSystem.Update(gameTime, 
+        _shipUserControlSystem.Update(gameTime, _componentManager);
+        _fireBulletSystem.Update(gameTime,
+                                _componentManager,
                                 _bulletFactory,
-                                _shipEntity.Id,
-                                _renderComponents,
-                                _positionComponents,
-                                _rotationComponents,
-                                _motionComponents,
-                                _collisionComponents,
-                                _dealDamageComponents,
-                                _takeDamageComponents,
-                                _allegianceComponents);
-        _asteroidSpawnSystem.Update(gameTime,
-                                    _asteroidFactory,
-                                    _shipEntity.Id,
-                                    _renderComponents,
-                                    _positionComponents,
-                                    _rotationComponents,
-                                    _motionComponents,
-                                    _collisionComponents,
-                                    _dealDamageComponents,
-                                    _takeDamageComponents,
-                                    _allegianceComponents,
-                                    _scoreComponents);
+                                _shipEntity.Id);
+        _asteroidSpawnSystem.Update(gameTime, _componentManager, _asteroidFactory, _shipEntity.Id);
 
-        _linearMotionSystem.Update(gameTime, _motionComponents, _positionComponents);
-        _angularMotionSystem.Update(gameTime, _angularMotionComponents, _rotationComponents);
+        _linearMotionSystem.Update(gameTime, _componentManager);
+        _angularMotionSystem.Update(gameTime, _componentManager);
 
-        _damageSystem.Update(_collisionComponents,
-                            _positionComponents,
-                            _dealDamageComponents,
-                            _takeDamageComponents,
-                            _deadComponents,
-                            _allegianceComponents);
+        _damageSystem.Update(gameTime, _componentManager);
         
-        _scoreSystem.Update(_scoreComponents, _deadComponents, _totalScoreComponents);
-        _scoreboardUpdateSystem.Update(_totalScoreComponents, _textComponents);
-        _gameOverSystem.Update(_shipEntity, _gameOver, _deadComponents, _visibleComponents);
+        _scoreSystem.Update(gameTime, _componentManager);
+        _scoreboardUpdateSystem.Update(gameTime, _componentManager);
+        _gameOverSystem.Update(gameTime, _componentManager, _shipEntity, _gameOver);
         
-        PostUpdate();
+        PostUpdate(gameTime);
 
         base.Update(gameTime);
     }
 
-    private void PostUpdate()
+    private void PostUpdate(GameTime gameTime)
     {
-        // FIXME: Would be preferable to not have to explicitly specify every component list here
-        foreach (var (entityId, component) in _deadComponents)
-        {
-            _deathSystem.Update(entityId,
-                _renderComponents,
-                _positionComponents,
-                _motionComponents,
-                _collisionComponents,
-                _dealDamageComponents,
-                _takeDamageComponents,
-                _deadComponents);
-        }
+        _deathSystem.Update(gameTime, _componentManager);
     }
 
     protected override void Draw(GameTime gameTime)
@@ -177,20 +131,9 @@ public class Game1 : Game
         GraphicsDevice.Clear(Color.Black);
 
         _spriteBatch.Begin();
-
-        // TODO: Update these to take dictionaries of components?
-        foreach (var (entityId, component) in _renderComponents)
-        {
-            _renderSystem.Draw(_spriteBatch, component, _positionComponents[entityId], _rotationComponents[entityId]);
-        }
         
-        foreach (var (entityId, component) in _textComponents)
-        {
-            if (_visibleComponents.ContainsKey(entityId))
-            {
-                _textRenderSystem.Draw(_spriteBatch, component, _positionComponents[entityId]);
-            }
-        }
+        _renderSystem.Draw(_spriteBatch, _componentManager);
+        _textRenderSystem.Draw(_spriteBatch, _componentManager);
 
         _spriteBatch.End();
 

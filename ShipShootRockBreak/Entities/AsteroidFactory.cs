@@ -14,27 +14,19 @@ public class AsteroidFactory(Texture2D texture)
     private const int Health = 20;
     private const int Score = 100;
 
-    public void CreateAsteroid(Dictionary<Guid, RenderComponent> renderComponents,
-        Dictionary<Guid, PositionComponent> positionComponents,
-        Dictionary<Guid, RotationComponent> rotationComponents,
-        Dictionary<Guid, LinearMotionComponent> linearMotionComponents,
-        Dictionary<Guid, CollisionComponent> collisionComponents,
-        Dictionary<Guid, DealDamageComponent> dealDamageComponents,
-        Dictionary<Guid, TakeDamageComponent> takeDamageComponents,
-        Dictionary<Guid, AllegianceComponent> allegianceComponents,
-        Dictionary<Guid, ScoreComponent> scoreComponents,
+    public void CreateAsteroid(ComponentManager componentManager,
         Vector2 position,
         Vector2 velocity)
     {
         var asteroidEntity = new Entity("asteroid");
-        renderComponents.Add(asteroidEntity.Id, new RenderComponent(_texture));
-        positionComponents.Add(asteroidEntity.Id, new PositionComponent(position));
-        rotationComponents.Add(asteroidEntity.Id, new RotationComponent());
-        linearMotionComponents.Add(asteroidEntity.Id, new LinearMotionComponent(velocity));
-        collisionComponents.Add(asteroidEntity.Id, new CollisionComponent(_texture.Height, _texture.Width));
-        dealDamageComponents.Add(asteroidEntity.Id, new DealDamageComponent(Damage));
-        takeDamageComponents.Add(asteroidEntity.Id, new TakeDamageComponent(Health));
-        allegianceComponents.Add(asteroidEntity.Id, new AllegianceComponent(Allegiance.Enemy));
-        scoreComponents.Add(asteroidEntity.Id, new ScoreComponent(Score));
+        componentManager.AddRenderComponent(asteroidEntity.Id, _texture);
+        componentManager.AddPositionComponent(asteroidEntity.Id, position);
+        componentManager.AddRotationComponent(asteroidEntity.Id);
+        componentManager.AddLinearMotionComponent(asteroidEntity.Id, velocity);
+        componentManager.AddCollisionComponent(asteroidEntity.Id, _texture.Height, _texture.Width);
+        componentManager.AddDealDamageComponent(asteroidEntity.Id, Damage);
+        componentManager.AddTakeDamageComponent(asteroidEntity.Id, Health);
+        componentManager.AddAllegianceComponent(asteroidEntity.Id, Allegiance.Enemy);
+        componentManager.AddScoreComponent(asteroidEntity.Id, Score);
     }
 }

@@ -1,17 +1,29 @@
 using System;
 using System.Collections.Generic;
+using Microsoft.Xna.Framework;
 using ShipShootRockBreak.Components;
 using ShipShootRockBreak.Entities;
 
 namespace ShipShootRockBreak.Systems;
 
-public class GameOverSystem
+public class GameOverSystem : ISystem
 {
     public void Update(Entity ship, Entity gameOver, Dictionary<Guid, DeadComponent> deadComponents, Dictionary<Guid, VisibleComponent> visibleComponents)
     {
-        if (deadComponents.ContainsKey(ship.Id) && !visibleComponents.ContainsKey(gameOver.Id))
+
+    }
+
+    // FIXME: Special update()
+    public void Update(GameTime gameTime, ComponentManager componentManager, Entity ship, Entity gameOver)
+    {
+        if (componentManager.DeadComponents.ContainsKey(ship.Id) && !componentManager.VisibleComponents.ContainsKey(gameOver.Id))
         {
-            visibleComponents.Add(gameOver.Id, new VisibleComponent());
+            componentManager.VisibleComponents.Add(gameOver.Id, new VisibleComponent());
         }
+    }
+
+    public void Update(GameTime gameTime, ComponentManager componentManager)
+    {
+        throw new NotImplementedException();
     }
 }

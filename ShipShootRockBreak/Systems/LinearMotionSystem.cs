@@ -5,13 +5,13 @@ using ShipShootRockBreak.Components;
 
 namespace ShipShootRockBreak.Systems;
 
-public class LinearMotionSystem
+public class LinearMotionSystem : ISystem
 {
-    public void Update(GameTime gameTime, Dictionary<Guid, LinearMotionComponent> motionComponents, Dictionary<Guid, PositionComponent> positionComponents)
+    public void Update(GameTime gameTime, ComponentManager componentManager)
     {
-        foreach ( var (entityId, motionComponent) in motionComponents)
+        foreach ( var (entityId, motionComponent) in componentManager.MotionComponents)
         {
-            positionComponents[entityId].Position += motionComponent.Velocity * (float)gameTime.ElapsedGameTime.TotalSeconds;
+            componentManager.PositionComponents[entityId].Position += motionComponent.Velocity * (float)gameTime.ElapsedGameTime.TotalSeconds;
         }
     }
 }

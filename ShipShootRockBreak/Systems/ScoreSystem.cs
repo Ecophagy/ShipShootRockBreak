@@ -1,21 +1,26 @@
 using System;
 using System.Collections.Generic;
+using Microsoft.Xna.Framework;
 using ShipShootRockBreak.Components;
 
 namespace ShipShootRockBreak.Systems;
 
-public class ScoreSystem
+public class ScoreSystem : ISystem
 {
     public void Update(Dictionary<Guid, ScoreComponent> scoreComponents, Dictionary<Guid, DeadComponent> deadComponents, Dictionary<Guid, TotalScoreComponent> totalComponents)
     {
-        foreach (var (entityId, scoreComponent) in scoreComponents)
+
+    }
+
+    public void Update(GameTime gameTime, ComponentManager componentManager)
+    {
+        foreach (var (entityId, scoreComponent) in componentManager.ScoreComponents)
         {
-            if (deadComponents.ContainsKey(entityId))
+            if (componentManager.DeadComponents.ContainsKey(entityId))
             {
-                foreach (var component in totalComponents)
+                foreach (var component in componentManager.TotalScoreComponents)
                 {
                     component.Value.TotalScore += scoreComponent.Score;
-                    Console.Out.WriteLine(component.Value.TotalScore);
                 }
             }
         }

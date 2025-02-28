@@ -8,28 +8,21 @@ using ShipShootRockBreak.Entities;
 
 namespace ShipShootRockBreak.Systems;
 
-public class AsteroidSpawnSystem()
+public class AsteroidSpawnSystem : ISystem
 {
     private float Timer { get; set; }
     private Random Random { get; } = new();
 
+    // FIXME: Another special update()
     public void Update(GameTime gameTime,
+        ComponentManager componentManager,
         AsteroidFactory asteroidFactory,
-        Guid shipId,
-        Dictionary<Guid, RenderComponent> renderComponents,
-        Dictionary<Guid, PositionComponent> positionComponents,
-        Dictionary<Guid, RotationComponent> rotationComponents,
-        Dictionary<Guid, LinearMotionComponent> linearMotionComponents,
-        Dictionary<Guid, CollisionComponent> collisionComponents,
-        Dictionary<Guid, DealDamageComponent> dealDamageComponents,
-        Dictionary<Guid, TakeDamageComponent> takeDamageComponents,
-        Dictionary<Guid, AllegianceComponent> allegianceComponents,
-        Dictionary<Guid, ScoreComponent> scoreComponents)
+        Guid shipId)
     {
         Timer += (float)gameTime.ElapsedGameTime.TotalSeconds;
         if (Timer >= GameConstants.AsteroidCreationThrottle)
         {
-            var shipLocation = positionComponents[shipId];
+            var shipLocation = componentManager.PositionComponents[shipId];
             
             var side = Random.Next(0, 4);
             var asteroidPosition = side switch
@@ -45,20 +38,14 @@ public class AsteroidSpawnSystem()
             var relativeAngle = Math.Atan2(relativePosition.Y, relativePosition.X);
             var asteroidVelocity = new Vector2((float)(Math.Cos(relativeAngle) * GameConstants.BulletSpeed), (float)(Math.Sin(relativeAngle) * GameConstants.BulletSpeed));
             
-            asteroidFactory.CreateAsteroid(renderComponents,
-                positionComponents,
-                rotationComponents,
-                linearMotionComponents,
-                collisionComponents,
-                dealDamageComponents,
-                takeDamageComponents,
-                allegianceComponents,
-                scoreComponents,
-                asteroidPosition,
-                asteroidVelocity);
+            asteroidFactory.CreateAsteroid(componentManager, asteroidPosition, asteroidVelocity);
 
             Timer = 0;
         }
     }
-    
+
+    public void Update(GameTime gameTime, ComponentManager componentManager)
+    {
+        throw new NotImplementedException();
+    }
 }

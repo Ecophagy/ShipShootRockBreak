@@ -1,24 +1,29 @@
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using ShipShootRockBreak.Components;
 
 namespace ShipShootRockBreak.Systems;
 
-public class ShipUserControlSystem
+public class ShipUserControlSystem : ISystem
 {
-    public void Update(AngularMotionComponent angularMotionComponent)
+    public void Update(GameTime gameTime, ComponentManager componentManager)
     {
-        // FIXME: Maybe move the keyboard checks into a separate system
-        if (Keyboard.GetState().IsKeyDown(Keys.Left))
+        // FIXME: This wants to iterate over a "user controlled" component or something
+        foreach (var (entityId, angularMotionComponent) in componentManager.AngularMotionComponents)
         {
-            angularMotionComponent.AngularVelocity = -angularMotionComponent.AngularSpeed;
-        }
-        else if (Keyboard.GetState().IsKeyDown(Keys.Right))
-        {
-            angularMotionComponent.AngularVelocity = angularMotionComponent.AngularSpeed;
-        }
-        else
-        {
-            angularMotionComponent.AngularVelocity = 0;
+            // FIXME: Maybe move the keyboard checks into a separate system
+            if (Keyboard.GetState().IsKeyDown(Keys.Left))
+            {
+                angularMotionComponent.AngularVelocity = -angularMotionComponent.AngularSpeed;
+            }
+            else if (Keyboard.GetState().IsKeyDown(Keys.Right))
+            {
+                angularMotionComponent.AngularVelocity = angularMotionComponent.AngularSpeed;
+            }
+            else
+            {
+                angularMotionComponent.AngularVelocity = 0;
+            }
         }
     }
 }
