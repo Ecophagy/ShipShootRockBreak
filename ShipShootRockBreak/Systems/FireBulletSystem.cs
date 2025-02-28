@@ -8,14 +8,13 @@ using ShipShootRockBreak.Entities;
 
 namespace ShipShootRockBreak.Systems;
 
-public class FireBulletSystem : ISystem
+public class FireBulletSystem(BulletFactory bulletFactory) : ISystem
 {
     private float Timer { get; set; }
+    private readonly BulletFactory _bulletFactory = bulletFactory;
     
-    // FIXME: This needs special inputs....
     public void Update(GameTime gameTime,
-                    ComponentManager componentManager,
-                    BulletFactory bulletFactory)
+                    ComponentManager componentManager)
     {
         Timer += (float)gameTime.ElapsedGameTime.TotalSeconds;
         if (Keyboard.GetState().IsKeyDown(Keys.Space))
@@ -36,7 +35,7 @@ public class FireBulletSystem : ISystem
                         new Vector2((float)(Math.Sin(shipRotation.Rotation) * GameConstants.BulletSpeed),
                             -(float)(Math.Cos(shipRotation.Rotation) * GameConstants.BulletSpeed));
 
-                    bulletFactory.CreateBullet(componentManager,
+                    _bulletFactory.CreateBullet(componentManager,
                         bulletPosition,
                         bulletVelocity,
                         shipRotation.Rotation);
@@ -44,10 +43,5 @@ public class FireBulletSystem : ISystem
                 }
             }
         }
-    }
-
-    public void Update(GameTime gameTime, ComponentManager componentManager)
-    {
-        throw new NotImplementedException();
     }
 }

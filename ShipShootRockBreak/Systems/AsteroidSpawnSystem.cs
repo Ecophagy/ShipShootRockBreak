@@ -8,15 +8,13 @@ using ShipShootRockBreak.Entities;
 
 namespace ShipShootRockBreak.Systems;
 
-public class AsteroidSpawnSystem : ISystem
+public class AsteroidSpawnSystem(AsteroidFactory asteroidFactory) : ISystem
 {
     private float Timer { get; set; }
     private Random Random { get; } = new();
+    private readonly AsteroidFactory _asteroidFactory = asteroidFactory;
 
-    // FIXME: Another special update()
-    public void Update(GameTime gameTime,
-        ComponentManager componentManager,
-        AsteroidFactory asteroidFactory)
+    public void Update(GameTime gameTime, ComponentManager componentManager)
     {
         Timer += (float)gameTime.ElapsedGameTime.TotalSeconds;
         if (Timer >= GameConstants.AsteroidCreationThrottle)
@@ -38,15 +36,10 @@ public class AsteroidSpawnSystem : ISystem
                 var asteroidVelocity = new Vector2((float)(Math.Cos(relativeAngle) * GameConstants.BulletSpeed),
                     (float)(Math.Sin(relativeAngle) * GameConstants.BulletSpeed));
 
-                asteroidFactory.CreateAsteroid(componentManager, asteroidPosition, asteroidVelocity);
+                _asteroidFactory.CreateAsteroid(componentManager, asteroidPosition, asteroidVelocity);
 
                 Timer = 0;
             }
         }
-    }
-
-    public void Update(GameTime gameTime, ComponentManager componentManager)
-    {
-        throw new NotImplementedException();
     }
 }

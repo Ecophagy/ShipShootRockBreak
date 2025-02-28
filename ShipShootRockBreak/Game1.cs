@@ -38,8 +38,8 @@ public class Game1 : Game
     private readonly DeathSystem _deathSystem = new();
     private readonly GameOverSystem _gameOverSystem = new();
     private readonly ShipUserControlSystem _shipUserControlSystem = new();
-    private readonly FireBulletSystem _fireBulletSystem = new();
-    private readonly AsteroidSpawnSystem _asteroidSpawnSystem = new();
+    private FireBulletSystem _fireBulletSystem;
+    private AsteroidSpawnSystem _asteroidSpawnSystem;
     private readonly ScoreSystem _scoreSystem = new();
     private readonly ScoreboardUpdateSystem _scoreboardUpdateSystem = new();
     
@@ -92,6 +92,10 @@ public class Game1 : Game
         // Game Over
         _componentManager.AddTextRenderComponent(_gameOver.Id, hudFont, "Game Over!");
         _componentManager.AddPositionComponent(_gameOver.Id, new Vector2(ScreenWidth/2, ScreenHeight/2) - _componentManager.TextComponents[_gameOver.Id].Size / 2);
+        
+        // Initialise systems that need run-time info
+        _fireBulletSystem = new FireBulletSystem(_bulletFactory);
+        _asteroidSpawnSystem = new AsteroidSpawnSystem(_asteroidFactory);
     }
 
 
@@ -102,10 +106,8 @@ public class Game1 : Game
             Exit();
 
         _shipUserControlSystem.Update(gameTime, _componentManager);
-        _fireBulletSystem.Update(gameTime,
-                                _componentManager,
-                                _bulletFactory);
-        _asteroidSpawnSystem.Update(gameTime, _componentManager, _asteroidFactory);
+        _fireBulletSystem.Update(gameTime, _componentManager);
+        _asteroidSpawnSystem.Update(gameTime, _componentManager);
 
         _linearMotionSystem.Update(gameTime, _componentManager);
         _angularMotionSystem.Update(gameTime, _componentManager);

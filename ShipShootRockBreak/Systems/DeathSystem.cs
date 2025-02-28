@@ -7,18 +7,6 @@ namespace ShipShootRockBreak.Systems;
 
 public class DeathSystem : ISystem
 {
-    public void Update(Guid entityId,
-        Dictionary<Guid, RenderComponent> renderComponents,
-        Dictionary<Guid, PositionComponent> positionComponents,
-        Dictionary<Guid, LinearMotionComponent> motionComponents,
-        Dictionary<Guid, CollisionComponent> collisionComponents,
-        Dictionary<Guid, DealDamageComponent> dealDamageComponents,
-        Dictionary<Guid, TakeDamageComponent> takeDamageComponents,
-        Dictionary<Guid, DeadComponent> deadComponents)
-    {
-
-    }
-
     public void Update(GameTime gameTime, ComponentManager componentManager)
     {
         foreach (var (entityId, _) in componentManager.DeadComponents)
