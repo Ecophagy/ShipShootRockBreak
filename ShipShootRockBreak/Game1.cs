@@ -92,6 +92,7 @@ public class Game1 : Game
         // Game Over
         _componentManager.AddTextRenderComponent(_gameOver.Id, hudFont, "Game Over!");
         _componentManager.AddPositionComponent(_gameOver.Id, new Vector2(ScreenWidth/2, ScreenHeight/2) - _componentManager.TextComponents[_gameOver.Id].Size / 2);
+        _componentManager.AddGameOverComponent(_gameOver.Id);
         
         // Initialise systems that need run-time info
         _fireBulletSystem = new FireBulletSystem(_bulletFactory);
@@ -116,7 +117,7 @@ public class Game1 : Game
         
         _scoreSystem.Update(gameTime, _componentManager);
         _scoreboardUpdateSystem.Update(gameTime, _componentManager);
-        _gameOverSystem.Update(gameTime, _componentManager, _shipEntity, _gameOver);
+        _gameOverSystem.Update(gameTime, _componentManager);
         
         PostUpdate(gameTime);
 

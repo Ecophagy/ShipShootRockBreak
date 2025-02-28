@@ -23,6 +23,7 @@ public class ComponentManager
     public Dictionary<Guid, ScoreComponent> ScoreComponents { get; } = new();
     public Dictionary<Guid, TotalScoreComponent> TotalScoreComponents { get; } = new();
     public Dictionary<Guid, PlayerComponent> PlayerComponents { get; } = new();
+    public Dictionary<Guid, GameOverComponent> GameOverComponents { get; } = new();
 
     #region Add component to entity
     public void AddRenderComponent(Guid id, Texture2D texture)
@@ -98,6 +99,11 @@ public class ComponentManager
     public void AddPlayerComponent(Guid id)
     {
         PlayerComponents.Add(id, new PlayerComponent());
+    }
+
+    public void AddGameOverComponent(Guid id)
+    {
+        GameOverComponents.Add(id, new GameOverComponent());
     }
     #endregion
     
