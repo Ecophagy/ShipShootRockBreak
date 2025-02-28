@@ -15,27 +15,33 @@ public class FireBulletSystem : ISystem
     // FIXME: This needs special inputs....
     public void Update(GameTime gameTime,
                     ComponentManager componentManager,
-                    BulletFactory bulletFactory,
-                    Guid shipId)
+                    BulletFactory bulletFactory)
     {
         Timer += (float)gameTime.ElapsedGameTime.TotalSeconds;
         if (Keyboard.GetState().IsKeyDown(Keys.Space))
         {
             if (Timer >= GameConstants.BulletCreationThrottle)
             {
-                var shipLocation = componentManager.PositionComponents[shipId];
-                var shipRotation = componentManager.RotationComponents[shipId];
-                var horizontalOffset = Math.Sin(shipRotation.Rotation) * GameConstants.SpawnDistanceFromShip;
-                var verticalOffset = Math.Cos(shipRotation.Rotation) * GameConstants.SpawnDistanceFromShip;
-                
-                var bulletPosition = shipLocation.Position + new Vector2((float)horizontalOffset, -(float)verticalOffset); ;
-                var bulletVelocity = new Vector2((float)(Math.Sin(shipRotation.Rotation) * GameConstants.BulletSpeed), -(float)(Math.Cos(shipRotation.Rotation) * GameConstants.BulletSpeed));
-                
-                bulletFactory.CreateBullet(componentManager,
-                    bulletPosition,
-                    bulletVelocity,
-                    shipRotation.Rotation);
-                Timer = 0;
+                foreach(var (entityId, component) in componentManager.PlayerComponents)
+                {
+                    var shipLocation = componentManager.PositionComponents[entityId];
+                    var shipRotation = componentManager.RotationComponents[entityId];
+                    var horizontalOffset = Math.Sin(shipRotation.Rotation) * GameConstants.SpawnDistanceFromShip;
+                    var verticalOffset = Math.Cos(shipRotation.Rotation) * GameConstants.SpawnDistanceFromShip;
+
+                    var bulletPosition = shipLocation.Position +
+                                         new Vector2((float)horizontalOffset, -(float)verticalOffset);
+                    
+                    var bulletVelocity =
+                        new Vector2((float)(Math.Sin(shipRotation.Rotation) * GameConstants.BulletSpeed),
+                            -(float)(Math.Cos(shipRotation.Rotation) * GameConstants.BulletSpeed));
+
+                    bulletFactory.CreateBullet(componentManager,
+                        bulletPosition,
+                        bulletVelocity,
+                        shipRotation.Rotation);
+                    Timer = 0;
+                }
             }
         }
     }

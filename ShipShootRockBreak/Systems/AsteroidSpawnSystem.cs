@@ -16,31 +16,32 @@ public class AsteroidSpawnSystem : ISystem
     // FIXME: Another special update()
     public void Update(GameTime gameTime,
         ComponentManager componentManager,
-        AsteroidFactory asteroidFactory,
-        Guid shipId)
+        AsteroidFactory asteroidFactory)
     {
         Timer += (float)gameTime.ElapsedGameTime.TotalSeconds;
         if (Timer >= GameConstants.AsteroidCreationThrottle)
         {
-            var shipLocation = componentManager.PositionComponents[shipId];
-            
-            var side = Random.Next(0, 4);
-            var asteroidPosition = side switch
+            foreach (var (entityId, _) in componentManager.PlayerComponents)
             {
-                0 => new Vector2(Random.Next(0, Game1.ScreenWidth), 0),
-                1 => new Vector2(Game1.ScreenWidth, Random.Next(0, Game1.ScreenHeight)),
-                2 => new Vector2(Random.Next(0, Game1.ScreenWidth), Game1.ScreenHeight),
-                3 => new Vector2(0, Random.Next(0, Game1.ScreenHeight)),
-                _ => new Vector2()
-            };
+                var side = Random.Next(0, 4);
+                var asteroidPosition = side switch
+                {
+                    0 => new Vector2(Random.Next(0, Game1.ScreenWidth), 0),
+                    1 => new Vector2(Game1.ScreenWidth, Random.Next(0, Game1.ScreenHeight)),
+                    2 => new Vector2(Random.Next(0, Game1.ScreenWidth), Game1.ScreenHeight),
+                    3 => new Vector2(0, Random.Next(0, Game1.ScreenHeight)),
+                    _ => new Vector2()
+                };
 
-            var relativePosition = shipLocation.Position - asteroidPosition;
-            var relativeAngle = Math.Atan2(relativePosition.Y, relativePosition.X);
-            var asteroidVelocity = new Vector2((float)(Math.Cos(relativeAngle) * GameConstants.BulletSpeed), (float)(Math.Sin(relativeAngle) * GameConstants.BulletSpeed));
-            
-            asteroidFactory.CreateAsteroid(componentManager, asteroidPosition, asteroidVelocity);
+                var relativePosition = componentManager.PositionComponents[entityId].Position - asteroidPosition;
+                var relativeAngle = Math.Atan2(relativePosition.Y, relativePosition.X);
+                var asteroidVelocity = new Vector2((float)(Math.Cos(relativeAngle) * GameConstants.BulletSpeed),
+                    (float)(Math.Sin(relativeAngle) * GameConstants.BulletSpeed));
 
-            Timer = 0;
+                asteroidFactory.CreateAsteroid(componentManager, asteroidPosition, asteroidVelocity);
+
+                Timer = 0;
+            }
         }
     }
 

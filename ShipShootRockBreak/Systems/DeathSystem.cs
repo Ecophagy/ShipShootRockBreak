@@ -31,6 +31,7 @@ public class DeathSystem : ISystem
             componentManager.DealDamageComponents.Remove(entityId);
             componentManager.TakeDamageComponents.Remove(entityId);
             componentManager.DeadComponents.Remove(entityId);
+            componentManager.PlayerComponents.Remove(entityId);
         }
     }
 }

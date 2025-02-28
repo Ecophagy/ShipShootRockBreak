@@ -26,7 +26,7 @@ public class Game1 : Game
     private readonly Entity _gameOver = new("game_over");
     
     // Components
-    private ComponentManager _componentManager = new();
+    private readonly ComponentManager _componentManager = new();
     
     // Systems
     // TODO: Put these in an ordered list and iterate over it for updates
@@ -71,6 +71,7 @@ public class Game1 : Game
         _componentManager.AddCollisionComponent(_shipEntity.Id, shipTexture.Height, shipTexture.Width);
         _componentManager.AddTakeDamageComponent(_shipEntity.Id, GameConstants.ShipMaxHealth);
         _componentManager.AddAllegianceComponent(_shipEntity.Id, Allegiance.Ally);
+        _componentManager.AddPlayerComponent(_shipEntity.Id);
         
         // Bullet
         var bulletTexture = this.Content.Load<Texture2D>("bullet");
@@ -103,9 +104,8 @@ public class Game1 : Game
         _shipUserControlSystem.Update(gameTime, _componentManager);
         _fireBulletSystem.Update(gameTime,
                                 _componentManager,
-                                _bulletFactory,
-                                _shipEntity.Id);
-        _asteroidSpawnSystem.Update(gameTime, _componentManager, _asteroidFactory, _shipEntity.Id);
+                                _bulletFactory);
+        _asteroidSpawnSystem.Update(gameTime, _componentManager, _asteroidFactory);
 
         _linearMotionSystem.Update(gameTime, _componentManager);
         _angularMotionSystem.Update(gameTime, _componentManager);
