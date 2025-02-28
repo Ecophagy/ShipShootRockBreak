@@ -29,19 +29,8 @@ public class Game1 : Game
     private readonly ComponentManager _componentManager = new();
     
     // Systems
-    // TODO: Put these in an ordered list and iterate over it for updates
-    private readonly RenderSystem _renderSystem = new();
-    private readonly TextRenderSystem _textRenderSystem = new();
-    private readonly LinearMotionSystem _linearMotionSystem = new();
-    private readonly AngularMotionSystem _angularMotionSystem = new();
-    private readonly DamageSystem _damageSystem = new();
-    private readonly DeathSystem _deathSystem = new();
-    private readonly GameOverSystem _gameOverSystem = new();
-    private readonly ShipUserControlSystem _shipUserControlSystem = new();
-    private FireBulletSystem _fireBulletSystem;
-    private AsteroidSpawnSystem _asteroidSpawnSystem;
-    private readonly ScoreSystem _scoreSystem = new();
-    private readonly ScoreboardUpdateSystem _scoreboardUpdateSystem = new();
+    private List<ISystem> _systems;
+    private List<IRenderSystem> _renderSystems;
     
     public Game1()
     {
@@ -94,11 +83,22 @@ public class Game1 : Game
         _componentManager.AddPositionComponent(_gameOver.Id, new Vector2(ScreenWidth/2, ScreenHeight/2) - _componentManager.TextComponents[_gameOver.Id].Size / 2);
         _componentManager.AddGameOverComponent(_gameOver.Id);
         
-        // Initialise systems that need run-time info
-        _fireBulletSystem = new FireBulletSystem(_bulletFactory);
-        _asteroidSpawnSystem = new AsteroidSpawnSystem(_asteroidFactory);
+        // Initialise systems IN THE ORDER you want them to run
+        _renderSystems = [new RenderSystem(), new TextRenderSystem()];
+        _systems =
+        [
+            new ShipUserControlSystem(),
+            new FireBulletSystem(_bulletFactory),
+            new AsteroidSpawnSystem(_asteroidFactory),
+            new LinearMotionSystem(),
+            new AngularMotionSystem(),
+            new DamageSystem(),
+            new ScoreSystem(),
+            new ScoreboardUpdateSystem(),
+            new GameOverSystem(),
+            new DeathSystem()
+        ];
     }
-
 
     protected override void Update(GameTime gameTime)
     {
@@ -106,38 +106,23 @@ public class Game1 : Game
             Keyboard.GetState().IsKeyDown(Keys.Escape))
             Exit();
 
-        _shipUserControlSystem.Update(gameTime, _componentManager);
-        _fireBulletSystem.Update(gameTime, _componentManager);
-        _asteroidSpawnSystem.Update(gameTime, _componentManager);
-
-        _linearMotionSystem.Update(gameTime, _componentManager);
-        _angularMotionSystem.Update(gameTime, _componentManager);
-
-        _damageSystem.Update(gameTime, _componentManager);
-        
-        _scoreSystem.Update(gameTime, _componentManager);
-        _scoreboardUpdateSystem.Update(gameTime, _componentManager);
-        _gameOverSystem.Update(gameTime, _componentManager);
-        
-        PostUpdate(gameTime);
+        foreach (var system in _systems)
+        {
+            system.Update(gameTime, _componentManager);
+        }
 
         base.Update(gameTime);
     }
-
-    private void PostUpdate(GameTime gameTime)
-    {
-        _deathSystem.Update(gameTime, _componentManager);
-    }
-
+    
     protected override void Draw(GameTime gameTime)
     {
         GraphicsDevice.Clear(Color.Black);
 
         _spriteBatch.Begin();
-        
-        _renderSystem.Draw(_spriteBatch, _componentManager);
-        _textRenderSystem.Draw(_spriteBatch, _componentManager);
-
+        foreach (var system in _renderSystems)
+        {
+            system.Draw(_spriteBatch, _componentManager);
+        }
         _spriteBatch.End();
 
         base.Draw(gameTime);

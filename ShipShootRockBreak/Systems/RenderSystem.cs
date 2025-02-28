@@ -4,7 +4,7 @@ using ShipShootRockBreak.Components;
 
 namespace ShipShootRockBreak.Systems;
 
-public class RenderSystem
+public class RenderSystem : IRenderSystem
 {
     public void Draw(SpriteBatch spriteBatch, ComponentManager componentManager)
     {
